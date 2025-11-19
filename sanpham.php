@@ -2,9 +2,28 @@
 require_once __DIR__ . '/utils/session.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/controllers/SanPhamController.php';
+require_once __DIR__ . '/models/DanhMucSanPham.php';
 
 $pageTitle = 'Sản phẩm';
 $sanPhamController = new SanPhamController();
+
+// Get database connection for categories
+$database = new Database();
+$conn = $database->getConnection();
+$danhMucObj = new DanhMucSanPham($conn);
+$danhMucs = $danhMucObj->docTatCa();
+
+// Get selected category name
+$selectedDanhMucId = $_GET['danh_muc'] ?? null;
+$selectedDanhMucName = '';
+if ($selectedDanhMucId) {
+    $danhMucTemp = new DanhMucSanPham($conn);
+    $danhMucTemp->id = $selectedDanhMucId;
+    if ($danhMucTemp->docTheoId()) {
+        $selectedDanhMucName = $danhMucTemp->ten_danh_muc;
+        $pageTitle = $danhMucTemp->ten_danh_muc . ' - Sản phẩm';
+    }
+}
 
 $id = $_GET['id'] ?? null;
 if ($id) {
@@ -66,57 +85,112 @@ include __DIR__ . '/views/layout/header.php';
         </div>
     </div>
 <?php else: ?>
-    <!-- Product List -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2>Sản phẩm</h2>
-        </div>
-        <div class="col-md-6">
-            <form method="GET" class="d-flex">
-                <input type="text" class="form-control me-2" name="keyword" 
-                       placeholder="Tìm kiếm sản phẩm..." value="<?php echo $_GET['keyword'] ?? ''; ?>">
-                <button type="submit" class="btn btn-outline-primary">
-                    <i class="bi bi-search"></i> Tìm
-                </button>
-            </form>
-        </div>
-    </div>
-    
-    <div class="row">
-        <?php if ($products): ?>
-            <?php while ($product = $products->fetch(PDO::FETCH_ASSOC)): ?>
-                <div class="col-md-3 mb-4">
-                    <div class="card product-card h-100">
-                        <?php if ($product['hinh_anh']): ?>
-                            <img src="/<?php echo htmlspecialchars($product['hinh_anh']); ?>" 
-                                 class="card-img-top" alt="<?php echo htmlspecialchars($product['ten_san_pham']); ?>"
-                                 style="height: 200px; object-fit: cover;">
-                        <?php else: ?>
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                 style="height: 200px;">
-                                <i class="bi bi-image fs-1 text-muted"></i>
+    <!-- Product List with Sidebar -->
+    <div class="main-content">
+        <div class="product-list-container">
+            <!-- Category Sidebar -->
+            <aside class="category-sidebar">
+                <h3>Danh mục</h3>
+                <ul class="category-list">
+                    <li class="<?php echo !$selectedDanhMucId ? 'active' : ''; ?>">
+                        <a href="<?php echo getBaseUrl(); ?>/sanpham.php">
+                            <i class="fa-solid fa-border-all"></i> Tất cả sản phẩm
+                        </a>
+                    </li>
+                    <?php
+                    $danhMucs = $danhMucObj->docTatCa(); // Reset pointer
+                    while ($dm = $danhMucs->fetch(PDO::FETCH_ASSOC)):
+                    ?>
+                        <li class="<?php echo ($selectedDanhMucId == $dm['id']) ? 'active' : ''; ?>">
+                            <a href="<?php echo getBaseUrl(); ?>/sanpham.php?danh_muc=<?php echo $dm['id']; ?>">
+                                <i class="fa-solid fa-tag"></i> <?php echo htmlspecialchars($dm['ten_danh_muc']); ?>
+                            </a>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            </aside>
+            
+            <!-- Products Grid -->
+            <div class="products-main">
+                <div class="products-header">
+                    <div>
+                        <h2><?php echo $selectedDanhMucName ? htmlspecialchars($selectedDanhMucName) : 'Tất cả sản phẩm'; ?></h2>
+                    </div>
+                    <form method="GET" class="search-form">
+                        <?php if ($selectedDanhMucId): ?>
+                            <input type="hidden" name="danh_muc" value="<?php echo $selectedDanhMucId; ?>">
+                        <?php endif; ?>
+                        <input type="text" name="keyword" 
+                               placeholder="Tìm kiếm sản phẩm..." 
+                               value="<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>">
+                        <button type="submit">
+                            <i class="fa-solid fa-search"></i> Tìm
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="course-list">
+                    <?php if ($products): ?>
+                        <?php 
+                        $hasProducts = false;
+                        while ($product = $products->fetch(PDO::FETCH_ASSOC)): 
+                            $hasProducts = true;
+                        ?>
+                            <div class="course-item">
+                                <a href="<?php echo getBaseUrl(); ?>/sanpham.php?id=<?php echo $product['id']; ?>">
+                                    <?php if ($product['hinh_anh']): ?>
+                                        <img 
+                                            src="<?php echo getBaseUrl(); ?>/<?php echo htmlspecialchars($product['hinh_anh']); ?>" 
+                                            alt="<?php echo htmlspecialchars($product['ten_san_pham']); ?>" 
+                                            class="thumb"
+                                        />
+                                    <?php else: ?>
+                                        <img 
+                                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='278'%3E%3Crect fill='%23e2dfda' width='300' height='278'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%235f5b53' font-family='Arial' font-size='16'%3EKhông có ảnh%3C/text%3E%3C/svg%3E" 
+                                            alt="<?php echo htmlspecialchars($product['ten_san_pham']); ?>" 
+                                            class="thumb"
+                                        />
+                                    <?php endif; ?>
+                                </a>
+                                <div class="info">
+                                    <div class="head">
+                                        <h3 class="title">
+                                            <a href="<?php echo getBaseUrl(); ?>/sanpham.php?id=<?php echo $product['id']; ?>" class="line-clamp break-all">
+                                                <?php echo htmlspecialchars($product['ten_san_pham']); ?>
+                                            </a>
+                                        </h3>
+                                    </div>
+                                    <p class="desc line-clamp line-2 break-all">
+                                        <?php echo htmlspecialchars($product['mo_ta'] ?? 'Sản phẩm chất lượng cao'); ?>
+                                    </p>
+                                    <p class="p-list">
+                                        Tồn kho: <?php echo $product['so_luong_ton']; ?>
+                                    </p>
+                                    <div class="foot">
+                                        <span class="price"><?php echo number_format($product['gia_ban'], 0, ',', '.'); ?> đ</span>
+                                        <a href="<?php echo getBaseUrl(); ?>/sanpham.php?id=<?php echo $product['id']; ?>" class="btn book-btn">
+                                            Xem chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                        
+                        <?php if (!$hasProducts): ?>
+                            <div class="no-products">
+                                <i class="fa-solid fa-box-open"></i>
+                                <p>Không tìm thấy sản phẩm nào.</p>
                             </div>
                         <?php endif; ?>
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title"><?php echo htmlspecialchars($product['ten_san_pham']); ?></h5>
-                            <p class="card-text text-danger fw-bold">
-                                <?php echo number_format($product['gia_ban'], 0, ',', '.'); ?> đ
-                            </p>
-                            <div class="mt-auto">
-                                <a href="<?php echo getBaseUrl(); ?>/sanpham.php?id=<?php echo $product['id']; ?>" 
-                                   class="btn btn-primary btn-sm w-100">
-                                    <i class="bi bi-eye"></i> Xem chi tiết
-                                </a>
-                            </div>
+                    <?php else: ?>
+                        <div class="no-products">
+                            <i class="fa-solid fa-box-open"></i>
+                            <p>Không tìm thấy sản phẩm nào.</p>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <div class="col-12">
-                <div class="alert alert-info">Không tìm thấy sản phẩm nào.</div>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 <?php endif; ?>
 

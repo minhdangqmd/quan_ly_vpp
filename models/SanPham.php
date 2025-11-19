@@ -157,6 +157,32 @@ class SanPham {
         $stmt->execute();
         return $stmt;
     }
+
+    public function docTheoDanhMuc($id_danh_muc, $limit = 100, $offset = 0) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                  WHERE id_danh_muc = :id_danh_muc 
+                  ORDER BY ten_san_pham 
+                  LIMIT :limit OFFSET :offset";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id_danh_muc", $id_danh_muc);
+        $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
+        $stmt->bindParam(":offset", $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    public function timKiemTheoDanhMuc($keyword, $id_danh_muc) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                  WHERE (ten_san_pham LIKE :keyword OR mo_ta LIKE :keyword) 
+                  AND id_danh_muc = :id_danh_muc 
+                  ORDER BY ten_san_pham";
+        $stmt = $this->conn->prepare($query);
+        $keyword = "%{$keyword}%";
+        $stmt->bindParam(":keyword", $keyword);
+        $stmt->bindParam(":id_danh_muc", $id_danh_muc);
+        $stmt->execute();
+        return $stmt;
+    }
 }
 ?>
 

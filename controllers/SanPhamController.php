@@ -19,8 +19,14 @@ class SanPhamController {
         $offset = ($page - 1) * $limit;
         
         $keyword = $_GET['keyword'] ?? '';
-        if ($keyword) {
+        $danhMucId = $_GET['danh_muc'] ?? null;
+        
+        if ($keyword && $danhMucId) {
+            $stmt = $sanPham->timKiemTheoDanhMuc($keyword, $danhMucId);
+        } elseif ($keyword) {
             $stmt = $sanPham->timKiem($keyword);
+        } elseif ($danhMucId) {
+            $stmt = $sanPham->docTheoDanhMuc($danhMucId, $limit, $offset);
         } else {
             $stmt = $sanPham->docTatCa($limit, $offset);
         }

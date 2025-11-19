@@ -58,11 +58,27 @@ $currentUser = getCurrentUser();
                         <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'sanpham.php') ? 'active' : ''; ?>">
                             <a href="<?php echo $baseUrl; ?>/sanpham.php">Sản phẩm</a>
                         </li>
+                        <li class="dropdown <?php echo (basename($_SERVER['PHP_SELF']) == 'sanpham.php' && isset($_GET['danh_muc'])) ? 'active' : ''; ?>">
+                            <a href="#" class="dropdown-toggle">Danh mục <i class="fa-solid fa-angle-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <?php
+                                require_once __DIR__ . '/../../config/database.php';
+                                require_once __DIR__ . '/../../models/DanhMucSanPham.php';
+                                $db = new Database();
+                                $conn = $db->getConnection();
+                                $danhMucObj = new DanhMucSanPham($conn);
+                                $danhMucs = $danhMucObj->docTatCa();
+                                while ($dm = $danhMucs->fetch(PDO::FETCH_ASSOC)):
+                                ?>
+                                    <li><a href="<?php echo $baseUrl; ?>/sanpham.php?danh_muc=<?php echo $dm['id']; ?>"><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></a></li>
+                                <?php endwhile; ?>
+                            </ul>
+                        </li>
                         <?php if (isLoggedIn()): ?>
                             <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'donhang.php') ? 'active' : ''; ?>">
                                 <a href="<?php echo $baseUrl; ?>/donhang.php">Đơn hàng</a>
                             </li>
-                            <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'yeucaucustom.php') ? 'active' : ''; ?>">
+                            <li>
                                 <a href="<?php echo $baseUrl; ?>/yeucaucustom.php">Đặt hàng custom</a>
                             </li>
                             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Admin'): ?>
