@@ -1,216 +1,211 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require_once __DIR__ . '/utils/session.php';
+require_once __DIR__ . '/config/database.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+$pageTitle = 'Thông tin cá nhân';
+requireLogin();
 
-if (file_exists(__DIR__ . '/config.php')) {
-    require_once __DIR__ . '/config.php';
-} elseif (file_exists(__DIR__ . '/db.php')) {
-    require_once __DIR__ . '/db.php';
-} else {
+$database = new Database();
+$conn = $database->getConnection();
+$user = getCurrentUser();
 
-    $mysqli = new mysqli('localhost', 'root', '', 'quanly_taphoa');
-    if ($mysqli->connect_errno) {
-        die("Lỗi kết nối DB: " . $mysqli->connect_error);
-    }
-}
-
-function getBaseUrl() {
-    $d = dirname($_SERVER['SCRIPT_NAME']);
-    $d = str_replace('\\','/',$d);
-    $d = rtrim($d, '/');
-    return ($d === '' || $d === '/') ? '' : $d;
-}
-
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ' . (getBaseUrl() ? getBaseUrl() . '/login.php' : 'login.php'));
-    exit;
-}
-$user_id = intval($_SESSION['user_id']);
-
-
-$sql = "SELECT t.id AS taikhoan_id, t.ten_dang_nhap, t.email AS email_tk,
-               n.id AS chitiet_id, n.ho_ten, n.dien_thoai, n.dia_chi, n.avatar
-        FROM taikhoan t
-        LEFT JOIN nguoi_dung_chi_tiet n ON n.id_taikhoan = t.id
-        WHERE t.id = ?";
-$stmt = $mysqli->prepare($sql);
-if (!$stmt) die("Prepare lỗi SELECT user: " . $mysqli->error);
-$stmt->bind_param('i', $user_id);
+// Get user details
+$query = "SELECT t.*, n.ho_ten, n.dien_thoai, n.dia_chi, n.avatar 
+          FROM taikhoan t 
+          LEFT JOIN nguoi_dung_chi_tiet n ON n.id_taikhoan = t.id 
+          WHERE t.id = :id";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':id', $user['id']);
 $stmt->execute();
-$res = $stmt->get_result();
-$user = $res->fetch_assoc();
-$stmt->close();
+$userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$user) {
-    die("Không tìm thấy tài khoản với id = {$user_id} trong bảng taikhoan.");
-}
+$thongBao = '';
+$thongBaoType = '';
 
-
-$thong_bao = '';
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
-    $ho_ten = trim($_POST['ho_ten'] ?? '');
+    $hoTen = trim($_POST['ho_ten'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $dien_thoai = trim($_POST['dien_thoai'] ?? '');
-    $dia_chi = trim($_POST['dia_chi'] ?? '');
-    $avatar_path = null;
-
-
-    if (!empty($_FILES['avatar']['name'])) {
-        $up = $_FILES['avatar'];
-        if ($up['error'] !== 0) {
-            $thong_bao = "Lỗi upload avatar: code {$up['error']}.";
-        } else {
-            $ext = strtolower(pathinfo($up['name'], PATHINFO_EXTENSION));
-            $allowed = ['png','jpg','jpeg','gif'];
-            if (!in_array($ext, $allowed)) {
-                $thong_bao = "Định dạng avatar không hợp lệ. Chỉ: " . implode(', ', $allowed);
-            } else {
-                $targetDir = __DIR__ . '/uploads/avatars';
-                if (!is_dir($targetDir)) {
-                    if (!mkdir($targetDir, 0755, true)) {
-                        $thong_bao = "Không tạo được thư mục lưu avatar: $targetDir";
-                    }
-                }
-                if ($thong_bao === '') {
-                    $filename = 'user_'.$user_id.'_'.time().'.'.$ext;
-                    $dest = $targetDir . '/' . $filename;
-                    if (!move_uploaded_file($up['tmp_name'], $dest)) {
-                        $thong_bao = "Lỗi lưu file avatar. Kiểm tra quyền thư mục.";
-                    } else {
-                        $avatar_path = 'uploads/avatars/' . $filename;
-                    }
-                }
+    $dienThoai = trim($_POST['dien_thoai'] ?? '');
+    $diaChi = trim($_POST['dia_chi'] ?? '');
+    $avatarPath = $userData['avatar'] ?? null;
+    
+    // Handle avatar upload
+    if (!empty($_FILES['avatar']['name']) && $_FILES['avatar']['error'] === 0) {
+        $uploadDir = __DIR__ . '/uploads/avatars';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+        $allowed = ['png', 'jpg', 'jpeg', 'gif'];
+        
+        if (in_array($ext, $allowed)) {
+            $filename = 'user_' . $user['id'] . '_' . time() . '.' . $ext;
+            $dest = $uploadDir . '/' . $filename;
+            
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $dest)) {
+                $avatarPath = 'uploads/avatars/' . $filename;
             }
         }
     }
-
-
-    if ($thong_bao === '') {
-        // 1) Cập nhật email trên bảng taikhoan nếu khác
-        if ($email !== $user['email_tk']) {
-            $uq = $mysqli->prepare("UPDATE taikhoan SET email = ? WHERE id = ?");
-            if ($uq) {
-                $uq->bind_param('si', $email, $user_id);
-                if (!$uq->execute()) $thong_bao = "Lỗi khi cập nhật email: " . $uq->error;
-                $uq->close();
-            } else {
-                $thong_bao = "Prepare lỗi update email: " . $mysqli->error;
-            }
-        }
-
-
-        if ($thong_bao === '') {
-            if (!empty($user['chitiet_id'])) {
-                // đã tồn tại record chi tiết -> UPDATE
-                if ($avatar_path) {
-                    $sqlu = "UPDATE nguoi_dung_chi_tiet SET ho_ten = ?, dien_thoai = ?, dia_chi = ?, avatar = ?, ngay_cap_nhat = NOW() WHERE id_taikhoan = ?";
-                    $stmt2 = $mysqli->prepare($sqlu);
-                    if ($stmt2) {
-                        $stmt2->bind_param('ssssi', $ho_ten, $dien_thoai, $dia_chi, $avatar_path, $user_id);
-                        if (!$stmt2->execute()) $thong_bao = "Lỗi UPDATE chi tiết: " . $stmt2->error;
-                        $stmt2->close();
-                    } else $thong_bao = "Prepare lỗi UPDATE chi tiết: " . $mysqli->error;
-                } else {
-                    $sqlu = "UPDATE nguoi_dung_chi_tiet SET ho_ten = ?, dien_thoai = ?, dia_chi = ?, ngay_cap_nhat = NOW() WHERE id_taikhoan = ?";
-                    $stmt2 = $mysqli->prepare($sqlu);
-                    if ($stmt2) {
-                        $stmt2->bind_param('sssi', $ho_ten, $dien_thoai, $dia_chi, $user_id);
-                        if (!$stmt2->execute()) $thong_bao = "Lỗi UPDATE chi tiết: " . $stmt2->error;
-                        $stmt2->close();
-                    } else $thong_bao = "Prepare lỗi UPDATE chi tiết: " . $mysqli->error;
-                }
-            } else {
-                // chưa có record -> INSERT
-                $sqli = "INSERT INTO nguoi_dung_chi_tiet (id_taikhoan, ho_ten, dien_thoai, dia_chi, avatar, ngay_cap_nhat) VALUES (?,?,?,?,?,NOW())";
-                $st = $mysqli->prepare($sqli);
-                if ($st) {
-                    $st->bind_param('issss', $user_id, $ho_ten, $dien_thoai, $dia_chi, $avatar_path);
-                    if (!$st->execute()) $thong_bao = "Lỗi INSERT chi tiết: " . $st->error;
-                    $st->close();
-                } else $thong_bao = "Prepare lỗi INSERT chi tiết: " . $mysqli->error;
-            }
-        }
-
-
-        if ($thong_bao === '') {
-            $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param('i', $user_id);
+    
+    try {
+        // Update email in taikhoan
+        if ($email !== $userData['email']) {
+            $updateEmail = "UPDATE taikhoan SET email = :email WHERE id = :id";
+            $stmt = $conn->prepare($updateEmail);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':id', $user['id']);
             $stmt->execute();
-            $res = $stmt->get_result();
-            $user = $res->fetch_assoc();
-            $stmt->close();
-            $thong_bao = "Cập nhật thành công.";
-            // cập nhật session info (nếu cần)
-            $_SESSION['email'] = $user['email_tk'] ?? $email;
         }
+        
+        // Check if details exist
+        $checkQuery = "SELECT id FROM nguoi_dung_chi_tiet WHERE id_taikhoan = :id";
+        $checkStmt = $conn->prepare($checkQuery);
+        $checkStmt->bindParam(':id', $user['id']);
+        $checkStmt->execute();
+        $detailExists = $checkStmt->fetch();
+        
+        if ($detailExists) {
+            // Update
+            $updateQuery = "UPDATE nguoi_dung_chi_tiet 
+                           SET ho_ten = :ho_ten, dien_thoai = :dien_thoai, 
+                               dia_chi = :dia_chi, avatar = :avatar, ngay_cap_nhat = NOW() 
+                           WHERE id_taikhoan = :id";
+            $stmt = $conn->prepare($updateQuery);
+        } else {
+            // Insert
+            $insertQuery = "INSERT INTO nguoi_dung_chi_tiet 
+                           (id_taikhoan, ho_ten, dien_thoai, dia_chi, avatar, ngay_cap_nhat) 
+                           VALUES (:id, :ho_ten, :dien_thoai, :dia_chi, :avatar, NOW())";
+            $stmt = $conn->prepare($insertQuery);
+        }
+        
+        $stmt->bindParam(':id', $user['id']);
+        $stmt->bindParam(':ho_ten', $hoTen);
+        $stmt->bindParam(':dien_thoai', $dienThoai);
+        $stmt->bindParam(':dia_chi', $diaChi);
+        $stmt->bindParam(':avatar', $avatarPath);
+        $stmt->execute();
+        
+        // Reload data
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':id', $user['id']);
+        $stmt->execute();
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $thongBao = 'Cập nhật thông tin thành công!';
+        $thongBaoType = 'success';
+    } catch (Exception $e) {
+        $thongBao = 'Có lỗi xảy ra: ' . $e->getMessage();
+        $thongBaoType = 'error';
     }
 }
+
+include __DIR__ . '/views/layout/header.php';
 ?>
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <title>Thông tin cá nhân</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;padding:20px;background:#fff}
-    .card{max-width:900px;margin:20px auto;padding:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-    .left{float:left;width:30%;text-align:center}
-    .right{float:right;width:65%}
-    img.avatar{width:140px;height:140px;border-radius:50%;object-fit:cover}
-    label{display:block;margin:10px 0 4px}
-    input, textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px}
-    .btn{display:inline-block;padding:10px 16px;background:#f6b21a;color:#fff;border-radius:24px;text-decoration:none;border:none;cursor:pointer}
-    .clear{clear:both}
-    .msg{margin:10px 0;color:green}
-    .err{margin:10px 0;color:red}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="left">
-      <h3><?php echo htmlspecialchars($user['ten_dang_nhap'] ?? ($_SESSION['username'] ?? '')); ?></h3>
-      <?php if (!empty($user['avatar'])): ?>
-        <img class="avatar" src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="avatar">
-      <?php else: ?>
-        <div style="width:140px;height:140px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;color:#999">No Avatar</div>
-      <?php endif; ?>
-    </div>
 
-    <div class="right">
-      <h2>Thông tin cá nhân</h2>
-      <?php if ($thong_bao): ?>
-        <div class="<?php echo ($thong_bao === 'Cập nhật thành công.' ? 'msg' : 'err'); ?>"><?php echo htmlspecialchars($thong_bao); ?></div>
-      <?php endif; ?>
-
-      <form method="post" enctype="multipart/form-data">
-        <label>Họ tên</label>
-        <input name="ho_ten" value="<?php echo htmlspecialchars($user['ho_ten'] ?? ''); ?>">
-
-        <label>Email</label>
-        <input name="email" value="<?php echo htmlspecialchars($user['email_tk'] ?? ''); ?>">
-
-        <label>Điện Thoại / Tel</label>
-        <input name="dien_thoai" value="<?php echo htmlspecialchars($user['dien_thoai'] ?? ''); ?>">
-
-        <label>Địa Chỉ</label>
-        <textarea name="dia_chi"><?php echo htmlspecialchars($user['dia_chi'] ?? ''); ?></textarea>
-
-        <label>Avatar (ảnh)</label>
-        <input type="file" name="avatar" accept="image/*">
-
-        <div style="margin-top:12px">
-          <button class="btn" type="submit" name="luu_thong_tin">Lưu thay đổi</button>
-          <a href="<?php echo (getBaseUrl() ? getBaseUrl().'/index.php' : 'index.php'); ?>" style="margin-left:12px;text-decoration:none">Quay về</a>
+<div class="main-content">
+    <?php if ($thongBao): ?>
+        <div class="alert-<?php echo $thongBaoType; ?>">
+            <i class="fa-solid fa-<?php echo $thongBaoType === 'success' ? 'circle-check' : 'circle-exclamation'; ?>"></i>
+            <?php echo htmlspecialchars($thongBao); ?>
         </div>
-      </form>
+    <?php endif; ?>
+    
+    <div class="profile-container">
+        <div class="profile-sidebar">
+            <div class="profile-avatar-section">
+                <?php if (!empty($userData['avatar'])): ?>
+                    <img src="<?php echo getBaseUrl(); ?>/<?php echo htmlspecialchars($userData['avatar']); ?>" 
+                         alt="Avatar" class="profile-avatar">
+                <?php else: ?>
+                    <div class="profile-avatar-placeholder">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                <?php endif; ?>
+                <h3><?php echo htmlspecialchars($userData['ten_dang_nhap'] ?? 'Người dùng'); ?></h3>
+                <p><?php echo htmlspecialchars($userData['email'] ?? ''); ?></p>
+            </div>
+            
+            <div class="profile-menu">
+                <a href="#" class="profile-menu-item active">
+                    <i class="fa-solid fa-user"></i> Thông tin cá nhân
+                </a>
+                <a href="<?php echo getBaseUrl(); ?>/donhang.php" class="profile-menu-item">
+                    <i class="fa-solid fa-clipboard-list"></i> Đơn hàng của tôi
+                </a>
+                <a href="<?php echo getBaseUrl(); ?>/giohang.php" class="profile-menu-item">
+                    <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
+                </a>
+                <a href="<?php echo getBaseUrl(); ?>/logout.php" class="profile-menu-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                </a>
+            </div>
+        </div>
+        
+        <div class="profile-main">
+            <div class="profile-card">
+                <h2><i class="fa-solid fa-user-pen"></i> Chỉnh sửa thông tin</h2>
+                
+                <form method="POST" enctype="multipart/form-data" class="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ho_ten">
+                                <i class="fa-solid fa-user"></i> Họ và tên
+                            </label>
+                            <input type="text" id="ho_ten" name="ho_ten" 
+                                   value="<?php echo htmlspecialchars($userData['ho_ten'] ?? ''); ?>"
+                                   placeholder="Nhập họ và tên">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fa-solid fa-envelope"></i> Email
+                            </label>
+                            <input type="email" id="email" name="email" 
+                                   value="<?php echo htmlspecialchars($userData['email'] ?? ''); ?>"
+                                   placeholder="email@example.com" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dien_thoai">
+                                <i class="fa-solid fa-phone"></i> Số điện thoại
+                            </label>
+                            <input type="tel" id="dien_thoai" name="dien_thoai" 
+                                   value="<?php echo htmlspecialchars($userData['dien_thoai'] ?? ''); ?>"
+                                   placeholder="0123456789">
+                        </div>
+                        <div class="form-group">
+                            <label for="avatar">
+                                <i class="fa-solid fa-image"></i> Ảnh đại diện
+                            </label>
+                            <input type="file" id="avatar" name="avatar" accept="image/*">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dia_chi">
+                            <i class="fa-solid fa-location-dot"></i> Địa chỉ
+                        </label>
+                        <textarea id="dia_chi" name="dia_chi" rows="3" 
+                                  placeholder="Nhập địa chỉ của bạn"><?php echo htmlspecialchars($userData['dia_chi'] ?? ''); ?></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" name="luu_thong_tin" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+                        </button>
+                        <a href="<?php echo getBaseUrl(); ?>/index.php" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="clear"></div>
-  </div>
-</body>
-</html>
-
+<?php include __DIR__ . '/views/layout/footer.php'; ?>
