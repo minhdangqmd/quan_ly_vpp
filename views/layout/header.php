@@ -82,8 +82,15 @@ $currentUser = getCurrentUser();
                                 <a href="<?php echo $baseUrl; ?>/yeucaucustom.php">Đặt hàng custom</a>
                             </li>
                             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Admin'): ?>
-                                <li class="<?php echo (strpos($_SERVER['PHP_SELF'], 'admin') !== false) ? 'active' : ''; ?>">
-                                    <a href="<?php echo $baseUrl; ?>/admin/sanpham.php">Quản lý</a>
+                                <li class="dropdown <?php echo (strpos($_SERVER['PHP_SELF'], 'admin') !== false) ? 'active' : ''; ?>">
+                                    <a href="#" class="dropdown-toggle">Quản lý <i class="fa-solid fa-angle-down"></i></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="<?php echo $baseUrl; ?>/admin/danhmuc.php"><i class="fa-solid fa-folder"></i> Danh mục</a></li>
+                                        <li><a href="<?php echo $baseUrl; ?>/admin/sanpham.php"><i class="fa-solid fa-box"></i> Sản phẩm</a></li>
+                                        <li><a href="<?php echo $baseUrl; ?>/admin/khachhang.php"><i class="fa-solid fa-users"></i> Khách hàng</a></li>
+                                        <li><a href="<?php echo $baseUrl; ?>/admin/donhang.php"><i class="fa-solid fa-clipboard-list"></i> Đơn hàng</a></li>
+                                        <li><a href="<?php echo $baseUrl; ?>/admin/baocao.php"><i class="fa-solid fa-chart-line"></i> Báo cáo thống kê</a></li>
+                                    </ul>
                                 </li>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -120,15 +127,33 @@ $currentUser = getCurrentUser();
                             
                             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Admin'): ?>
                                 <li class="profile-dropdown-list-item">
+                                    <a href="<?php echo $baseUrl; ?>/admin/danhmuc.php">
+                                        <i class="fa-solid fa-folder"></i>
+                                        Quản lý danh mục
+                                    </a>
+                                </li>
+                                <li class="profile-dropdown-list-item">
                                     <a href="<?php echo $baseUrl; ?>/admin/sanpham.php">
                                         <i class="fa-solid fa-sliders"></i>
                                         Quản lý sản phẩm
                                     </a>
                                 </li>
                                 <li class="profile-dropdown-list-item">
+                                    <a href="<?php echo $baseUrl; ?>/admin/khachhang.php">
+                                        <i class="fa-solid fa-users"></i>
+                                        Quản lý khách hàng
+                                    </a>
+                                </li>
+                                <li class="profile-dropdown-list-item">
                                     <a href="<?php echo $baseUrl; ?>/admin/donhang.php">
-                                        <i class="fa-regular fa-circle-question"></i>
+                                        <i class="fa-solid fa-clipboard-list"></i>
                                         Quản lý đơn hàng
+                                    </a>
+                                </li>
+                                <li class="profile-dropdown-list-item">
+                                    <a href="<?php echo $baseUrl; ?>/admin/baocao.php">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                        Báo cáo thống kê
                                     </a>
                                 </li>
                             <?php endif; ?>

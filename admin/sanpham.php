@@ -21,6 +21,10 @@ if ($action == 'edit' && $_SERVER['REQUEST_METHOD'] == 'POST' && $id) {
     $controller->update($id);
 }
 
+if ($action == 'delete' && $id) {
+    $controller->delete($id);
+}
+
 $products = $controller->index();
 $formData = null;
 
@@ -39,6 +43,12 @@ include __DIR__ . '/../views/layout/header.php';
     <?php if (isset($_GET['success'])): ?>
         <div class="alert-success">
             <i class="fa-solid fa-circle-check"></i> Thao tác thành công!
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_GET['error'])): ?>
+        <div class="alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i> Có lỗi xảy ra! Không thể xóa sản phẩm.
         </div>
     <?php endif; ?>
     
@@ -224,6 +234,11 @@ include __DIR__ . '/../views/layout/header.php';
                                 <a href="<?php echo getBaseUrl(); ?>/admin/sanpham.php?action=edit&id=<?php echo $product['id']; ?>" 
                                    class="btn-edit">
                                     <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                </a>
+                                <a href="<?php echo getBaseUrl(); ?>/admin/sanpham.php?action=delete&id=<?php echo $product['id']; ?>" 
+                                   class="btn-delete"
+                                   onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                    <i class="fa-solid fa-trash"></i> Xóa
                                 </a>
                             </td>
                         </tr>

@@ -131,6 +131,23 @@ class SanPhamController {
         
         return null;
     }
+
+    public function delete($id) {
+        requireRole('Admin');
+        
+        $sanPham = new SanPham($this->conn);
+        $sanPham->id = $id;
+        
+        if ($sanPham->xoa()) {
+            $baseUrl = getBaseUrl();
+            header("Location: " . $baseUrl . "/admin/sanpham.php?success=1");
+            exit();
+        } else {
+            $baseUrl = getBaseUrl();
+            header("Location: " . $baseUrl . "/admin/sanpham.php?error=1");
+            exit();
+        }
+    }
 }
 ?>
 
