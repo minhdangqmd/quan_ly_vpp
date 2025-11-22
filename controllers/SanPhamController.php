@@ -6,7 +6,7 @@ require_once __DIR__ . '/../utils/session.php';
 
 class SanPhamController {
     private $conn;
-    
+
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
@@ -17,14 +17,14 @@ class SanPhamController {
         $page = $_GET['page'] ?? 1;
         $limit = 12;
         $offset = ($page - 1) * $limit;
-        
+
         $keyword = $_GET['keyword'] ?? '';
         if ($keyword) {
             $stmt = $sanPham->timKiem($keyword);
         } else {
             $stmt = $sanPham->docTatCa($limit, $offset);
         }
-        
+
         return $stmt;
     }
 
@@ -39,7 +39,7 @@ class SanPhamController {
 
     public function create() {
         requireRole('Admin');
-        
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $sanPham = new SanPham($this->conn);
             $sanPham->id = $_POST['id'] ?? '';
@@ -51,44 +51,48 @@ class SanPhamController {
             $sanPham->id_nha_cung_cap = $_POST['id_nha_cung_cap'] ?? null;
             $sanPham->id_dvt = $_POST['id_dvt'] ?? null;
             $sanPham->han_su_dung = $_POST['han_su_dung'] ?? null;
-            
-            // Handle image upload
+
+            // ✅ Handle image upload (đã sửa đường dẫn)
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
-                $uploadDir = 'uploads/products/';
+                // Đảm bảo lưu trong thư mục gốc project
+                $uploadDir = __DIR__ . '/../uploads/products/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
+
                 $fileName = time() . '_' . basename($_FILES['hinh_anh']['name']);
                 $targetFile = $uploadDir . $fileName;
+
                 if (move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $targetFile)) {
-                    $sanPham->hinh_anh = $targetFile;
+                    // Lưu đường dẫn tương đối để hiển thị web
+                    $sanPham->hinh_anh = 'uploads/products/' . $fileName;
                 }
             }
-            
+
             if ($sanPham->taoMoi()) {
                 $baseUrl = getBaseUrl();
                 header("Location: " . $baseUrl . "/admin/sanpham.php?success=1");
                 exit();
             }
         }
-        
-        // Get categories and suppliers for form
+
+        // Lấy danh mục và nhà cung cấp cho form
         $danhMuc = new DanhMucSanPham($this->conn);
         $danhMucs = $danhMuc->docTatCa();
-        
+
         require_once __DIR__ . '/../models/NhaCungCap.php';
         $nhaCungCap = new NhaCungCap($this->conn);
         $nhaCungCaps = $nhaCungCap->docTatCa();
-        
+
         return ['danhMucs' => $danhMucs, 'nhaCungCaps' => $nhaCungCaps];
     }
 
     public function update($id) {
         requireRole('Admin');
-        
+
         $sanPham = new SanPham($this->conn);
         $sanPham->id = $id;
-        
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $sanPham->ten_san_pham = $_POST['ten_san_pham'] ?? '';
             $sanPham->mo_ta = $_POST['mo_ta'] ?? '';
@@ -98,20 +102,22 @@ class SanPhamController {
             $sanPham->id_nha_cung_cap = $_POST['id_nha_cung_cap'] ?? null;
             $sanPham->id_dvt = $_POST['id_dvt'] ?? null;
             $sanPham->han_su_dung = $_POST['han_su_dung'] ?? null;
-            
-            // Handle image upload
+
+            // ✅ Handle image upload (đã sửa đường dẫn)
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
-                $uploadDir = 'uploads/products/';
+                $uploadDir = __DIR__ . '/../uploads/products/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
+
                 $fileName = time() . '_' . basename($_FILES['hinh_anh']['name']);
                 $targetFile = $uploadDir . $fileName;
+
                 if (move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $targetFile)) {
-                    $sanPham->hinh_anh = $targetFile;
+                    $sanPham->hinh_anh = 'uploads/products/' . $fileName;
                 }
             }
-            
+
             if ($sanPham->CapNhatThongTin()) {
                 $baseUrl = getBaseUrl();
                 header("Location: " . $baseUrl . "/admin/sanpham.php?success=1");
@@ -122,9 +128,42 @@ class SanPhamController {
                 return $sanPham;
             }
         }
-        
+
         return null;
+    }
+
+    public function delete($id) {
+        requireRole('Admin');
+
+        $sanPham = new SanPham($this->conn);
+        $sanPham->id = $id;
+
+        if ($sanPham->Xoa()) {
+            $baseUrl = getBaseUrl();
+            header("Location: " . $baseUrl . "/admin/sanpham.php?deleted=1");
+            exit();
+        } else {
+            echo "Lỗi: Không thể xóa sản phẩm.";
+        }
+    }
+
+    public function getFormData() {
+        require_once __DIR__ . '/../models/DanhMucSanPham.php';
+        require_once __DIR__ . '/../models/NhaCungCap.php';
+
+        $database = new Database();
+        $db = $database->getConnection();
+
+        $danhMucModel = new DanhMucSanPham($db);
+        $danhMucs = $danhMucModel->docTatCa();
+
+        $nccModel = new NhaCungCap($db);
+        $nhaCungCaps = $nccModel->docTatCa();
+
+        return [
+            'danhMucs' => $danhMucs,
+            'nhaCungCaps' => $nhaCungCaps
+        ];
     }
 }
 ?>
-

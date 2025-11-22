@@ -122,7 +122,7 @@ include __DIR__ . '/views/layout/header.php';
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <div class="alert alert-info">Chưa có yêu cầu nào.</div>
+                <div class="alert alert-info">Chưa có yêu cầu ewefwefwefwnào.</div>
             <?php endif; ?>
         </div>
     </div>

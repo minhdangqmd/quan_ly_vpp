@@ -135,7 +135,7 @@ include __DIR__ . '/../views/layout/header.php';
                                 <span class="badge bg-warning"><?php echo htmlspecialchars($dh['trang_thai']); ?></span>
                             </td>
                             <td>
-                                <span class="badge bg-info"><?php echo htmlspecialchars($dh['trang_thai_thanh_toan']); ?></span>
+                                <span class="badge bg-info"><?php echo htmlspecialchars($dh['id_hinh_thuc_tt']); ?></span>
                             </td>
                             <td>
                                 <a href="<?php echo getBaseUrl(); ?>/admin/donhang.php?id=<?php echo $dh['id']; ?>" class="btn btn-sm btn-primary">
@@ -151,6 +151,17 @@ include __DIR__ . '/../views/layout/header.php';
                 <?php endif; ?>
             </tbody>
         </table>
+        <style>
+table {
+  border-collapse: separate;
+  border-spacing: 20px 0;
+}
+
+th {
+  padding: 10px;
+  text-align: left;
+}
+</style>
     </div>
 <?php endif; ?>
 

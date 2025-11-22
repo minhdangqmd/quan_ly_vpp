@@ -24,6 +24,16 @@ class SanPham {
     public function __construct($db) {
         $this->conn = $db;
     }
+    //xoa
+    public function Xoa() {
+    $query = "DELETE FROM sanpham WHERE id = :id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':id', $this->id);
+
+    return $stmt->execute();
+}
+
+
 
     public function CapNhatThongTin() {
         $query = "UPDATE " . $this->table_name . " 

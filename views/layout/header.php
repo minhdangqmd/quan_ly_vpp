@@ -108,6 +108,15 @@ $currentUser = getCurrentUser();
                                         <i class="fa-solid fa-sliders"></i>
                                         Quản lý sản phẩm
                                     </a>
+                                </a>
+                            </li>
+                            
+                            
+                                <li class="profile-dropdown-list-item">
+                                    <a href="<?php echo $baseUrl; ?>/admin/baocaothongke.php">
+                                        <i class="fa-solid fa-sliders"></i>
+                                        Báo cáo thống kê
+                                    </a>
                                 </li>
                                 <li class="profile-dropdown-list-item">
                                     <a href="<?php echo $baseUrl; ?>/admin/donhang.php">

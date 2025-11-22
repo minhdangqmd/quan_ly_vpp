@@ -16,13 +16,21 @@ if ($action == 'create' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 if ($action == 'edit' && $id) {
     $product = $controller->update($id);
 }
+// xoa
+if ($action == 'delete' && $id) {
+    $controller->delete($id);
+    header('Location: ' . getBaseUrl() . '/admin/sanpham.php');
+    exit();
+}
+
+$formData = $controller->getFormData(); // tạo hàm getFormData() để lấy danh mục + nhà cung cấp
+
 
 if ($action == 'edit' && $_SERVER['REQUEST_METHOD'] == 'POST' && $id) {
     $controller->update($id);
 }
 
-$products = $controller->index();
-$formData = null;
+
 
 if ($action == 'create') {
     $formData = $controller->create();
@@ -32,6 +40,18 @@ if ($action == 'edit' && $id) {
     $product = $controller->update($id);
 }
 
+// Lấy danh sách sản phẩm
+$products = $controller->index();
+
+// Lấy form data cho dropdown (danh mục + nhà cung cấp)
+$formData = $controller->getFormData();
+
+// Nếu edit, lấy thông tin sản phẩm
+$product = null;
+if ($action == 'edit' && $id) {
+    $product = $controller->update($id);
+
+}
 include __DIR__ . '/../views/layout/header.php';
 ?>
 
@@ -138,18 +158,21 @@ include __DIR__ . '/../views/layout/header.php';
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="han_su_dung" class="form-label">Hạn sử dụng</label>
-                            <input type="date" class="form-control" id="han_su_dung" name="han_su_dung" 
-                                   value="<?php echo $product->han_su_dung ?? ''; ?>">
-                        </div>
+                        
                         <div class="mb-3">
                             <label for="hinh_anh" class="form-label">Hình ảnh</label>
                             <input type="file" class="form-control" id="hinh_anh" name="hinh_anh" accept="image/*">
                             <?php if ($action == 'edit' && $product && $product->hinh_anh): ?>
-                                <small class="form-text text-muted">
-                                    Hình ảnh hiện tại: <a href="/<?php echo $product->hinh_anh; ?>" target="_blank">Xem</a>
-                                </small>
+                                <?php if (!empty($product->hinh_anh)): ?>
+    <div class="mt-2">
+        <img src="<?php echo getBaseUrl() . '/' . htmlspecialchars($product->hinh_anh); ?>" 
+             alt="Ảnh sản phẩm" style="max-width:150px; border-radius:8px;">
+        <br>
+        <small class="text-muted">Ảnh hiện tại</small>
+    </div>
+<?php endif; ?>
+
+
                             <?php endif; ?>
                         </div>
                         <button type="submit" class="btn btn-primary">
@@ -205,6 +228,12 @@ include __DIR__ . '/../views/layout/header.php';
                                    class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil"></i> Sửa
                                 </a>
+                                 <a href="<?php echo getBaseUrl(); ?>/admin/sanpham.php?action=delete&id=<?php echo $product['id']; ?>" 
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
+                                        <i class="bi bi-trash"></i> Xóa
+                                </a>
+
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -215,6 +244,17 @@ include __DIR__ . '/../views/layout/header.php';
                 <?php endif; ?>
             </tbody>
         </table>
+        <style>
+table {
+  border-collapse: separate;
+  border-spacing: 20px 0;
+}
+
+th {
+  padding: 10px;
+  text-align: left;
+}
+</style>
     </div>
 <?php endif; ?>
 

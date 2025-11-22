@@ -1,15 +1,17 @@
 <?php
+// profile.php - dùng taikhoan + nguoi_dung_chi_tiet (phương án C)
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+// include connection - sửa đường dẫn nếu cần
 if (file_exists(__DIR__ . '/config.php')) {
     require_once __DIR__ . '/config.php';
 } elseif (file_exists(__DIR__ . '/db.php')) {
     require_once __DIR__ . '/db.php';
 } else {
-
+    // fallback: chỉnh tên database/user/password nếu bạn không có file kết nối
     $mysqli = new mysqli('localhost', 'root', '', 'quanly_taphoa');
     if ($mysqli->connect_errno) {
         die("Lỗi kết nối DB: " . $mysqli->connect_error);
@@ -23,14 +25,14 @@ function getBaseUrl() {
     return ($d === '' || $d === '/') ? '' : $d;
 }
 
-
+// Kiểm tra login
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . (getBaseUrl() ? getBaseUrl() . '/login.php' : 'login.php'));
     exit;
 }
 $user_id = intval($_SESSION['user_id']);
 
-
+// Lấy thông tin người dùng (JOIN)
 $sql = "SELECT t.id AS taikhoan_id, t.ten_dang_nhap, t.email AS email_tk,
                n.id AS chitiet_id, n.ho_ten, n.dien_thoai, n.dia_chi, n.avatar
         FROM taikhoan t
@@ -48,7 +50,7 @@ if (!$user) {
     die("Không tìm thấy tài khoản với id = {$user_id} trong bảng taikhoan.");
 }
 
-
+// Xử lý POST (cập nhật)
 $thong_bao = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
     $ho_ten = trim($_POST['ho_ten'] ?? '');
@@ -57,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
     $dia_chi = trim($_POST['dia_chi'] ?? '');
     $avatar_path = null;
 
-
+    // Xử lý upload avatar nếu có
     if (!empty($_FILES['avatar']['name'])) {
         $up = $_FILES['avatar'];
         if ($up['error'] !== 0) {
@@ -87,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
         }
     }
 
-
+    // Nếu không có lỗi upload, tiến hành cập nhật DB
     if ($thong_bao === '') {
         // 1) Cập nhật email trên bảng taikhoan nếu khác
         if ($email !== $user['email_tk']) {
@@ -101,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
             }
         }
 
-
+        // 2) Cập nhật/insert vào nguoi_dung_chi_tiet
         if ($thong_bao === '') {
             if (!empty($user['chitiet_id'])) {
                 // đã tồn tại record chi tiết -> UPDATE
@@ -134,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
             }
         }
 
-
+        // 3) Nếu tất cả OK, load lại dữ liệu user để hiển thị mới
         if ($thong_bao === '') {
             $stmt = $mysqli->prepare($sql);
             $stmt->bind_param('i', $user_id);
@@ -213,4 +215,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['luu_thong_tin'])) {
   </div>
 </body>
 </html>
-
