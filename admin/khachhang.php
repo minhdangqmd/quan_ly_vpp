@@ -69,7 +69,7 @@ include __DIR__ . '/../views/layout/header.php';
                     <div class="form-group">
                         <label for="so_dien_thoai"><i class="fa-solid fa-phone"></i> Số điện thoại *</label>
                         <input type="tel" id="so_dien_thoai" name="so_dien_thoai" 
-                               value="<?php echo htmlspecialchars($khachHang->so_dien_thoai ?? ''); ?>" 
+                               value="<?php echo htmlspecialchars($khachHang->sdt ?? ''); ?>" 
                                required placeholder="0123456789">
                     </div>
                     
@@ -97,7 +97,7 @@ include __DIR__ . '/../views/layout/header.php';
                         require_once __DIR__ . '/../config/database.php';
                         $database = new Database();
                         $conn = $database->getConnection();
-                        $query = "SELECT id, ten_dang_nhap FROM nguoidung WHERE id NOT IN (SELECT id_taikhoan FROM khachhang WHERE id_taikhoan IS NOT NULL)";
+                        $query = "SELECT id, ten_dang_nhap FROM taikhoan WHERE id NOT IN (SELECT id_taikhoan FROM khachhang WHERE id_taikhoan IS NOT NULL)";
                         $stmt = $conn->prepare($query);
                         $stmt->execute();
                         while ($user = $stmt->fetch(PDO::FETCH_ASSOC)):
@@ -130,7 +130,6 @@ include __DIR__ . '/../views/layout/header.php';
                     <th>ID</th>
                     <th>Họ tên</th>
                     <th>Số điện thoại</th>
-                    <th>Email</th>
                     <th>Địa chỉ</th>
                     <th>Tài khoản</th>
                     <th>Thao tác</th>
@@ -142,8 +141,7 @@ include __DIR__ . '/../views/layout/header.php';
                         <tr>
                             <td><strong><?php echo htmlspecialchars($kh['id']); ?></strong></td>
                             <td><?php echo htmlspecialchars($kh['ho_ten']); ?></td>
-                            <td><?php echo htmlspecialchars($kh['so_dien_thoai']); ?></td>
-                            <td><?php echo htmlspecialchars($kh['email'] ?: '-'); ?></td>
+                            <td><?php echo htmlspecialchars($kh['sdt']); ?></td>
                             <td><?php echo htmlspecialchars($kh['dia_chi'] ?: '-'); ?></td>
                             <td>
                                 <?php if ($kh['ten_dang_nhap']): ?>
@@ -167,7 +165,7 @@ include __DIR__ . '/../views/layout/header.php';
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7" class="no-data">
+                        <td colspan="6" class="no-data">
                             <i class="fa-solid fa-inbox"></i>
                             <p>Chưa có khách hàng nào</p>
                         </td>

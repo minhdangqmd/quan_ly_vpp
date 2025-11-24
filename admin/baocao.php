@@ -45,7 +45,7 @@ if ($action == 'export') {
             
         case 'khachhang':
             $data = $controller->thongKeKhachHang();
-            $headers = ['Mã KH', 'Họ tên', 'Số điện thoại', 'Email', 'Tổng đơn hàng', 'Tổng chi tiêu'];
+            $headers = ['Mã KH', 'Họ tên', 'Số điện thoại', 'Tổng đơn hàng', 'Tổng chi tiêu'];
             $filename = 'ThongKeKhachHang_' . date('YmdHis');
             $controller->exportToExcel('khachhang', $data, $headers, $filename);
             break;
@@ -353,7 +353,6 @@ include __DIR__ . '/../views/layout/header.php';
                             <th>Mã KH</th>
                             <th>Họ tên</th>
                             <th>Số điện thoại</th>
-                            <th>Email</th>
                             <th>Tổng đơn hàng</th>
                             <th>Tổng chi tiêu</th>
                         </tr>
@@ -364,15 +363,14 @@ include __DIR__ . '/../views/layout/header.php';
                                 <tr>
                                     <td><strong><?php echo htmlspecialchars($row['id']); ?></strong></td>
                                     <td><?php echo htmlspecialchars($row['ho_ten']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['so_dien_thoai']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['email'] ?? '-'); ?></td>
+                                    <td><?php echo htmlspecialchars($row['sdt']); ?></td>
                                     <td><strong><?php echo number_format($row['tong_don_hang']); ?></strong></td>
                                     <td class="price"><strong><?php echo number_format($row['tong_chi_tieu'], 0, ',', '.'); ?> đ</strong></td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="no-data">Không có dữ liệu</td>
+                                <td colspan="5" class="no-data">Không có dữ liệu</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

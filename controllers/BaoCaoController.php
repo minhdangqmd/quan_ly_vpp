@@ -34,7 +34,7 @@ class BaoCaoController {
                     dh.trang_thai,
                     dh.trang_thai_thanh_toan,
                     kh.ho_ten,
-                    kh.so_dien_thoai
+                    kh.sdt
                   FROM donhang dh
                   LEFT JOIN khachhang kh ON dh.id_khach_hang = kh.id
                   ORDER BY dh.ngay_dat DESC";
@@ -69,8 +69,7 @@ class BaoCaoController {
         $query = "SELECT 
                     kh.id,
                     kh.ho_ten,
-                    kh.so_dien_thoai,
-                    kh.email,
+                    kh.sdt,
                     COUNT(dh.id) as tong_don_hang,
                     SUM(dh.tong_tien) as tong_chi_tieu
                   FROM khachhang kh

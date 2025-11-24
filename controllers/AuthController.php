@@ -24,7 +24,7 @@ class AuthController {
                 $_SESSION['user_id'] = $nguoiDung->id;
                 $_SESSION['username'] = $nguoiDung->ten_dang_nhap;
                 $_SESSION['email'] = $nguoiDung->email;
-                $_SESSION['user_role'] = $nguoiDung->quyen->ten_vai_tro;
+                $_SESSION['user_role'] = ($nguoiDung->quyen && isset($nguoiDung->quyen->ten_vai_tro)) ? $nguoiDung->quyen->ten_vai_tro : 'KhachHang';
                 
                 $baseUrl = getBaseUrl();
                 header("Location: " . $baseUrl . "/index.php");
@@ -71,7 +71,7 @@ class AuthController {
                 $khachHang = new KhachHang($this->conn);
                 $khachHang->id_taikhoan = $nguoiDung->id;
                 $khachHang->ho_ten = $ho_ten;
-                $khachHang->so_dien_thoai = $so_dien_thoai;
+                $khachHang->sdt = $so_dien_thoai;
                 $khachHang->dia_chi = $dia_chi;
                 
                 if ($khachHang->taoMoi()) {

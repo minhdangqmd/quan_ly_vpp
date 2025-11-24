@@ -53,10 +53,13 @@ class SanPhamController {
             $sanPham->mo_ta = $_POST['mo_ta'] ?? '';
             $sanPham->gia_ban = $_POST['gia_ban'] ?? 0;
             $sanPham->so_luong_ton = $_POST['so_luong_ton'] ?? 0;
-            $sanPham->id_danh_muc = $_POST['id_danh_muc'] ?? null;
-            $sanPham->id_nha_cung_cap = $_POST['id_nha_cung_cap'] ?? null;
-            $sanPham->id_dvt = $_POST['id_dvt'] ?? null;
-            $sanPham->han_su_dung = $_POST['han_su_dung'] ?? null;
+            
+            // Convert empty strings to null for foreign keys
+            $sanPham->id_danh_muc = !empty($_POST['id_danh_muc']) ? $_POST['id_danh_muc'] : null;
+            $sanPham->id_nha_cung_cap = !empty($_POST['id_nha_cung_cap']) ? $_POST['id_nha_cung_cap'] : null;
+            $sanPham->id_dvt = !empty($_POST['id_dvt']) ? $_POST['id_dvt'] : null;
+            
+            $sanPham->han_su_dung = !empty($_POST['han_su_dung']) ? $_POST['han_su_dung'] : null;
             
             // Handle image upload
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
@@ -100,10 +103,13 @@ class SanPhamController {
             $sanPham->mo_ta = $_POST['mo_ta'] ?? '';
             $sanPham->gia_ban = $_POST['gia_ban'] ?? 0;
             $sanPham->so_luong_ton = $_POST['so_luong_ton'] ?? 0;
-            $sanPham->id_danh_muc = $_POST['id_danh_muc'] ?? null;
-            $sanPham->id_nha_cung_cap = $_POST['id_nha_cung_cap'] ?? null;
-            $sanPham->id_dvt = $_POST['id_dvt'] ?? null;
-            $sanPham->han_su_dung = $_POST['han_su_dung'] ?? null;
+            
+            // Convert empty strings to null for foreign keys
+            $sanPham->id_danh_muc = !empty($_POST['id_danh_muc']) ? $_POST['id_danh_muc'] : null;
+            $sanPham->id_nha_cung_cap = !empty($_POST['id_nha_cung_cap']) ? $_POST['id_nha_cung_cap'] : null;
+            $sanPham->id_dvt = !empty($_POST['id_dvt']) ? $_POST['id_dvt'] : null;
+            
+            $sanPham->han_su_dung = !empty($_POST['han_su_dung']) ? $_POST['han_su_dung'] : null;
             
             // Handle image upload
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {

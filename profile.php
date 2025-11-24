@@ -9,6 +9,29 @@ $database = new Database();
 $conn = $database->getConnection();
 $user = getCurrentUser();
 
+// Check and create table if not exists
+try {
+    $checkTable = "SHOW TABLES LIKE 'nguoi_dung_chi_tiet'";
+    $stmt = $conn->query($checkTable);
+    if ($stmt->rowCount() == 0) {
+        // Create table
+        $createTable = "CREATE TABLE `nguoi_dung_chi_tiet` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `id_taikhoan` int(11) NOT NULL,
+            `ho_ten` varchar(255) DEFAULT NULL,
+            `dien_thoai` varchar(50) DEFAULT NULL,
+            `dia_chi` text DEFAULT NULL,
+            `avatar` varchar(255) DEFAULT NULL,
+            `ngay_cap_nhat` timestamp NULL DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            KEY `id_taikhoan` (`id_taikhoan`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+        $conn->exec($createTable);
+    }
+} catch (PDOException $e) {
+    // Table might already exist, continue
+}
+
 // Get user details
 $query = "SELECT t.*, n.ho_ten, n.dien_thoai, n.dia_chi, n.avatar 
           FROM taikhoan t 

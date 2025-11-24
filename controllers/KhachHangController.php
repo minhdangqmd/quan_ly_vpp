@@ -20,14 +20,26 @@ class KhachHangController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $khachHang = new KhachHang($this->conn);
             $khachHang->ho_ten = $_POST['ho_ten'] ?? '';
-            $khachHang->so_dien_thoai = $_POST['so_dien_thoai'] ?? '';
-            $khachHang->email = $_POST['email'] ?? '';
+            $khachHang->sdt = $_POST['so_dien_thoai'] ?? '';
             $khachHang->dia_chi = $_POST['dia_chi'] ?? '';
-            $khachHang->id_taikhoan = $_POST['id_taikhoan'] ?? null;
+            
+            // Convert empty string, "0", or invalid values to NULL
+            $id_taikhoan = $_POST['id_taikhoan'] ?? '';
+            // Trim whitespace and check if it's a valid non-zero integer
+            $id_taikhoan = trim($id_taikhoan);
+            if ($id_taikhoan === '' || $id_taikhoan === '0' || !is_numeric($id_taikhoan)) {
+                $khachHang->id_taikhoan = null;
+            } else {
+                $khachHang->id_taikhoan = intval($id_taikhoan);
+            }
             
             if ($khachHang->taoMoi()) {
                 $baseUrl = getBaseUrl();
                 header("Location: " . $baseUrl . "/admin/khachhang.php?success=1");
+                exit();
+            } else {
+                $baseUrl = getBaseUrl();
+                header("Location: " . $baseUrl . "/admin/khachhang.php?error=1");
                 exit();
             }
         }
@@ -47,7 +59,7 @@ class KhachHangController {
             $khachHang = new KhachHang($this->conn);
             $khachHang->id = $id;
             $khachHang->ho_ten = $_POST['ho_ten'] ?? '';
-            $khachHang->so_dien_thoai = $_POST['so_dien_thoai'] ?? '';
+            $khachHang->sdt = $_POST['so_dien_thoai'] ?? '';
             $khachHang->dia_chi = $_POST['dia_chi'] ?? '';
             
             if ($khachHang->CapNhatThongTin()) {

@@ -8,8 +8,7 @@ class KhachHang {
     public $id;
     public $id_taikhoan;
     public $ho_ten;
-    public $so_dien_thoai;
-    public $email;
+    public $sdt;
     public $dia_chi;
 
     public function __construct($db) {
@@ -18,13 +17,13 @@ class KhachHang {
 
     public function CapNhatThongTin() {
         $query = "UPDATE " . $this->table_name . " 
-                  SET ho_ten = :ho_ten, so_dien_thoai = :so_dien_thoai, 
+                  SET ho_ten = :ho_ten, sdt = :sdt, 
                       dia_chi = :dia_chi 
                   WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindParam(":ho_ten", $this->ho_ten);
-        $stmt->bindParam(":so_dien_thoai", $this->so_dien_thoai);
+        $stmt->bindParam(":sdt", $this->sdt);
         $stmt->bindParam(":dia_chi", $this->dia_chi);
         $stmt->bindParam(":id", $this->id);
         
@@ -43,7 +42,7 @@ class KhachHang {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if($row) {
             $this->ho_ten = $row['ho_ten'];
-            $this->so_dien_thoai = $row['so_dien_thoai'];
+            $this->sdt = $row['sdt'];
             $this->dia_chi = $row['dia_chi'];
             $this->id_taikhoan = $row['id_taikhoan'];
             return true;
@@ -61,25 +60,41 @@ class KhachHang {
     }
 
     public function taoMoi() {
-        $query = "INSERT INTO " . $this->table_name . " (id_taikhoan, ho_ten, so_dien_thoai, dia_chi, email)\n                  VALUES (:id_taikhoan, :ho_ten, :so_dien_thoai, :dia_chi, :email)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id_taikhoan", $this->id_taikhoan);
-        $stmt->bindParam(":ho_ten", $this->ho_ten);
-        $stmt->bindParam(":so_dien_thoai", $this->so_dien_thoai);
-        $stmt->bindParam(":dia_chi", $this->dia_chi);
-        $stmt->bindParam(":email", $this->email);
+        try {
+            // Build query dynamically based on whether id_taikhoan is provided
+            if ($this->id_taikhoan !== null && $this->id_taikhoan > 0) {
+                $query = "INSERT INTO " . $this->table_name . " (id_taikhoan, ho_ten, sdt, dia_chi)
+                          VALUES (:id_taikhoan, :ho_ten, :sdt, :dia_chi)";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(":id_taikhoan", $this->id_taikhoan, PDO::PARAM_INT);
+            } else {
+                // If no id_taikhoan or invalid value, don't include it in the INSERT
+                $query = "INSERT INTO " . $this->table_name . " (ho_ten, sdt, dia_chi)
+                          VALUES (:ho_ten, :sdt, :dia_chi)";
+                $stmt = $this->conn->prepare($query);
+            }
+            
+            $stmt->bindParam(":ho_ten", $this->ho_ten);
+            $stmt->bindParam(":sdt", $this->sdt);
+            $stmt->bindParam(":dia_chi", $this->dia_chi);
 
-        if ($stmt->execute()) {
-            $this->id = $this->conn->lastInsertId();
-            return true;
+            if ($stmt->execute()) {
+                $this->id = $this->conn->lastInsertId();
+                return true;
+            }
+            return false;
+        } catch (PDOException $e) {
+            // Log error for debugging
+            error_log("KhachHang::taoMoi() Error: " . $e->getMessage());
+            error_log("id_taikhoan value: " . var_export($this->id_taikhoan, true));
+            return false;
         }
-        return false;
     }
 
     public function docTatCa() {
         $query = "SELECT kh.*, tk.ten_dang_nhap, tk.email as account_email 
                   FROM " . $this->table_name . " kh
-                  LEFT JOIN nguoidung tk ON kh.id_taikhoan = tk.id
+                  LEFT JOIN taikhoan tk ON kh.id_taikhoan = tk.id
                   ORDER BY kh.ho_ten";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();

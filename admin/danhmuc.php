@@ -91,22 +91,11 @@ include __DIR__ . '/../views/layout/header.php';
             <tbody>
                 <?php if ($danhMucs): ?>
                     <?php while ($dm = $danhMucs->fetch(PDO::FETCH_ASSOC)): ?>
-                        <?php
-                        // Count products in this category
-                        require_once __DIR__ . '/../config/database.php';
-                        $database = new Database();
-                        $conn = $database->getConnection();
-                        $query = "SELECT COUNT(*) as count FROM sanpham WHERE id_danh_muc = :id";
-                        $stmt = $conn->prepare($query);
-                        $stmt->bindParam(":id", $dm['id']);
-                        $stmt->execute();
-                        $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-                        ?>
                         <tr>
                             <td><strong><?php echo htmlspecialchars($dm['id']); ?></strong></td>
                             <td><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></td>
                             <td>
-                                <span class="count-badge"><?php echo $count; ?> sản phẩm</span>
+                                <span class="count-badge"><?php echo $dm['so_luong_san_pham']; ?> sản phẩm</span>
                             </td>
                             <td>
                                 <a href="<?php echo getBaseUrl(); ?>/admin/danhmuc.php?action=edit&id=<?php echo $dm['id']; ?>" 

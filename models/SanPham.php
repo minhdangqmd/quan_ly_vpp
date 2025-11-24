@@ -41,11 +41,38 @@ class SanPham {
         $stmt->bindParam(":ten_san_pham", $this->ten_san_pham);
         $stmt->bindParam(":mo_ta", $this->mo_ta);
         $stmt->bindParam(":gia_ban", $this->gia_ban);
-        $stmt->bindParam(":id_danh_muc", $this->id_danh_muc);
-        $stmt->bindParam(":id_nha_cung_cap", $this->id_nha_cung_cap);
-        $stmt->bindParam(":id_dvt", $this->id_dvt);
-        $stmt->bindParam(":hinh_anh", $this->hinh_anh);
-        $stmt->bindParam(":han_su_dung", $this->han_su_dung);
+        
+        // Properly bind NULL values for optional foreign keys
+        if ($this->id_danh_muc === null) {
+            $stmt->bindValue(":id_danh_muc", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":id_danh_muc", $this->id_danh_muc, PDO::PARAM_INT);
+        }
+        
+        if ($this->id_nha_cung_cap === null) {
+            $stmt->bindValue(":id_nha_cung_cap", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":id_nha_cung_cap", $this->id_nha_cung_cap);
+        }
+        
+        if ($this->id_dvt === null) {
+            $stmt->bindValue(":id_dvt", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":id_dvt", $this->id_dvt, PDO::PARAM_INT);
+        }
+        
+        if ($this->hinh_anh === null) {
+            $stmt->bindValue(":hinh_anh", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":hinh_anh", $this->hinh_anh);
+        }
+        
+        if ($this->han_su_dung === null) {
+            $stmt->bindValue(":han_su_dung", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":han_su_dung", $this->han_su_dung);
+        }
+        
         $stmt->bindParam(":id", $this->id);
         
         if($stmt->execute()) {
@@ -124,11 +151,37 @@ class SanPham {
         $stmt->bindParam(":mo_ta", $this->mo_ta);
         $stmt->bindParam(":gia_ban", $this->gia_ban);
         $stmt->bindParam(":so_luong_ton", $this->so_luong_ton);
-        $stmt->bindParam(":id_danh_muc", $this->id_danh_muc);
-        $stmt->bindParam(":id_nha_cung_cap", $this->id_nha_cung_cap);
-        $stmt->bindParam(":id_dvt", $this->id_dvt);
-        $stmt->bindParam(":hinh_anh", $this->hinh_anh);
-        $stmt->bindParam(":han_su_dung", $this->han_su_dung);
+        
+        // Properly bind NULL values for optional foreign keys
+        if ($this->id_danh_muc === null) {
+            $stmt->bindValue(":id_danh_muc", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":id_danh_muc", $this->id_danh_muc, PDO::PARAM_INT);
+        }
+        
+        if ($this->id_nha_cung_cap === null) {
+            $stmt->bindValue(":id_nha_cung_cap", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":id_nha_cung_cap", $this->id_nha_cung_cap);
+        }
+        
+        if ($this->id_dvt === null) {
+            $stmt->bindValue(":id_dvt", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":id_dvt", $this->id_dvt, PDO::PARAM_INT);
+        }
+        
+        if ($this->hinh_anh === null) {
+            $stmt->bindValue(":hinh_anh", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":hinh_anh", $this->hinh_anh);
+        }
+        
+        if ($this->han_su_dung === null) {
+            $stmt->bindValue(":han_su_dung", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(":han_su_dung", $this->han_su_dung);
+        }
         
         if($stmt->execute()) {
             return true;
