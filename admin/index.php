@@ -149,6 +149,14 @@ include __DIR__ . '/../views/layout/header.php';
                 <p style="margin: 5px 0 0; color: #666; font-size: 12px;">Quản lý phiếu nhập</p>
             </a>
 
+            <a href="<?php echo getBaseUrl(); ?>/admin/kho.php" class="management-card" style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
+                <div class="icon" style="background: linear-gradient(135deg, #fa7921 0%, #ffa500 100%); color: white; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 15px;">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+                <h4 style="margin: 0; color: #333; font-size: 16px; font-weight: 600;">Kho</h4>
+                <p style="margin: 5px 0 0; color: #666; font-size: 12px;">Quản lý kho hàng</p>
+            </a>
+
             <a href="<?php echo getBaseUrl(); ?>/admin/baocao.php" class="management-card" style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.2s, box-shadow 0.2s;">
                 <div class="icon" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 15px;">
                     <i class="fa-solid fa-chart-line"></i>

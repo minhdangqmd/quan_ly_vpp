@@ -59,7 +59,20 @@ include __DIR__ . '/../views/layout/header.php';
         </a>
     </div>
 
-<?php if ($action == 'create' || ($action == 'edit' && $id)): ?>
+<?php if ($action == 'create' || ($action == 'edit' && $id)): 
+    // Load danh mục và nhà cung cấp cho form
+    require_once __DIR__ . '/../models/DanhMucSanPham.php';
+    require_once __DIR__ . '/../models/NhaCungCap.php';
+    
+    $db = new Database();
+    $conn = $db->getConnection();
+    
+    $danhMucModel = new DanhMucSanPham($conn);
+    $danhMucsList = $danhMucModel->docTatCa();
+    
+    $nhaCungCapModel = new NhaCungCap($conn);
+    $nhaCungCapsList = $nhaCungCapModel->docTatCa();
+?>
     <!-- Create/Edit Form -->
     <div class="admin-form-container">
         <div class="admin-form-card">
@@ -111,8 +124,8 @@ include __DIR__ . '/../views/layout/header.php';
                         <label for="id_danh_muc"><i class="fa-solid fa-folder"></i> Danh mục</label>
                         <select id="id_danh_muc" name="id_danh_muc">
                             <option value="">Chọn danh mục</option>
-                            <?php if ($formData && isset($formData['danhMucs'])): ?>
-                                <?php while ($dm = $formData['danhMucs']->fetch(PDO::FETCH_ASSOC)): ?>
+                            <?php if ($danhMucsList): ?>
+                                <?php while ($dm = $danhMucsList->fetch(PDO::FETCH_ASSOC)): ?>
                                     <option value="<?php echo $dm['id']; ?>" 
                                             <?php echo ($product->id_danh_muc ?? '') == $dm['id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($dm['ten_danh_muc']); ?>
@@ -124,9 +137,6 @@ include __DIR__ . '/../views/layout/header.php';
                     <div class="form-group">
                         <label for="id_dvt"><i class="fa-solid fa-ruler"></i> Đơn vị tính</label>
                         <?php
-                        require_once __DIR__ . '/../config/database.php';
-                        $database = new Database();
-                        $conn = $database->getConnection();
                         $query = "SELECT * FROM donvitinh";
                         $stmt = $conn->prepare($query);
                         $stmt->execute();
@@ -149,8 +159,8 @@ include __DIR__ . '/../views/layout/header.php';
                         <label for="id_nha_cung_cap"><i class="fa-solid fa-truck"></i> Nhà cung cấp</label>
                         <select id="id_nha_cung_cap" name="id_nha_cung_cap">
                             <option value="">Chọn nhà cung cấp</option>
-                            <?php if ($formData && isset($formData['nhaCungCaps'])): ?>
-                                <?php while ($ncc = $formData['nhaCungCaps']->fetch(PDO::FETCH_ASSOC)): ?>
+                            <?php if ($nhaCungCapsList): ?>
+                                <?php while ($ncc = $nhaCungCapsList->fetch(PDO::FETCH_ASSOC)): ?>
                                     <option value="<?php echo $ncc['id']; ?>" 
                                             <?php echo ($product->id_nha_cung_cap ?? '') == $ncc['id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($ncc['ten_nha_cung_cap']); ?>

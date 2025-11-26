@@ -18,7 +18,18 @@ if ($action == 'update_status' && $_SERVER['REQUEST_METHOD'] == 'POST' && $id) {
     $trangThai = $_POST['trang_thai'] ?? '';
     if ($donHang->CapNhatTrangThaiDonHang($trangThai)) {
         $baseUrl = getBaseUrl();
-        header("Location: " . $baseUrl . "/admin/donhang.php?success=1");
+        header("Location: " . $baseUrl . "/admin/donhang.php?success=1&id=" . $id);
+        exit();
+    }
+}
+
+if ($action == 'update_payment_status' && $_SERVER['REQUEST_METHOD'] == 'POST' && $id) {
+    $donHang = new DonHang($conn);
+    $donHang->id = $id;
+    $trangThaiThanhToan = $_POST['trang_thai_thanh_toan'] ?? '';
+    if ($donHang->CapNhatTrangThaiThanhToan($trangThaiThanhToan)) {
+        $baseUrl = getBaseUrl();
+        header("Location: " . $baseUrl . "/admin/donhang.php?success=1&id=" . $id);
         exit();
     }
 }
@@ -66,6 +77,16 @@ include __DIR__ . '/../views/layout/header.php';
                                 <option value="Đang giao" <?php echo $donHang->trang_thai_don_hang == 'Đang giao' ? 'selected' : ''; ?>>Đang giao</option>
                                 <option value="Đã giao" <?php echo $donHang->trang_thai_don_hang == 'Đã giao' ? 'selected' : ''; ?>>Đã giao</option>
                                 <option value="Đã hủy" <?php echo $donHang->trang_thai_don_hang == 'Đã hủy' ? 'selected' : ''; ?>>Đã hủy</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <form method="POST" action="<?php echo getBaseUrl(); ?>/admin/donhang.php?action=update_payment_status&id=<?php echo $donHang->id; ?>" style="margin-top: 16px;">
+                        <div class="form-group">
+                            <label for="trang_thai_thanh_toan">Trạng thái thanh toán</label>
+                            <select id="trang_thai_thanh_toan" name="trang_thai_thanh_toan" onchange="this.form.submit()">
+                                <option value="Chưa thanh toán" <?php echo $donHang->trang_thai_thanh_toan == 'Chưa thanh toán' ? 'selected' : ''; ?>>Chưa thanh toán</option>
+                                <option value="Đã thanh toán" <?php echo $donHang->trang_thai_thanh_toan == 'Đã thanh toán' ? 'selected' : ''; ?>>Đã thanh toán</option>
                             </select>
                         </div>
                     </form>

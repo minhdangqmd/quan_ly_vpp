@@ -301,6 +301,10 @@ $currentUser = getCurrentUser();
                         <i class="fa-solid fa-file-import"></i>
                         Phiếu nhập
                     </a>
+                    <a href="<?php echo $baseUrl; ?>/admin/kho.php" class="menu-item <?php echo $currentAdminPage == 'kho.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-warehouse"></i>
+                        Kho
+                    </a>
                     <a href="<?php echo $baseUrl; ?>/admin/baocao.php" class="menu-item <?php echo $currentAdminPage == 'baocao.php' ? 'active' : ''; ?>">
                         <i class="fa-solid fa-chart-line"></i>
                         Báo cáo thống kê

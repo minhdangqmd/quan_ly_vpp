@@ -21,7 +21,7 @@ if ($action == 'delete' && $id) {
     $controller->delete($id);
 }
 
-$danhMucs = $controller->index();
+$listDanhMuc = $controller->index();
 $danhMuc = null;
 
 if ($action == 'edit' && $id) {
@@ -89,8 +89,16 @@ include __DIR__ . '/../views/layout/header.php';
                 </tr>
             </thead>
             <tbody>
-                <?php if ($danhMucs): ?>
-                    <?php while ($dm = $danhMucs->fetch(PDO::FETCH_ASSOC)): ?>
+                <?php 
+                $hasData = false;
+                $rows = [];
+                if ($listDanhMuc) {
+                    $rows = $listDanhMuc->fetchAll(PDO::FETCH_ASSOC);
+                    $hasData = count($rows) > 0;
+                }
+                ?>
+                <?php if ($hasData): ?>
+                    <?php foreach ($rows as $dm): ?>
                         <tr>
                             <td><strong><?php echo htmlspecialchars($dm['id']); ?></strong></td>
                             <td><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></td>
@@ -109,7 +117,7 @@ include __DIR__ . '/../views/layout/header.php';
                                 </a>
                             </td>
                         </tr>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
                         <td colspan="4" class="no-data">
