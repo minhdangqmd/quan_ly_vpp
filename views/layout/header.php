@@ -168,7 +168,7 @@ $currentUser = getCurrentUser();
                 padding: 20px 0;
                 position: fixed;
                 left: 0;
-                top: 80px;
+                top: 90px;
                 height: calc(100vh - 80px);
                 overflow-y: auto;
                 z-index: 100;

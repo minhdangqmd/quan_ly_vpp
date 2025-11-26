@@ -45,16 +45,6 @@ include __DIR__ . '/views/layout/header.php';
                     </p>
                     <div class="cta-group">
                         <a href="#product" class="btn hero-cta">Xem Sản Phẩm</a>
-                        <button class="watch-video">
-                            <div class="icon">
-                                <img
-                                    src="<?php echo $baseUrl; ?>/assets/icons/play.svg"
-                                    alt=""
-                                    onerror="this.style.display='none'"
-                                />
-                            </div>
-                            <span>Video Giới Thiệu</span>
-                        </button>
                     </div>
                     <p class="desc">Tương tác gần đây</p>
                     <p class="desc stats">
