@@ -116,10 +116,23 @@ class NguoiDung {
         return $stmt->fetchColumn() > 0;
     }
 
+    public function kiemTraEmailTonTai() {
+        $query = "SELECT COUNT(*) FROM " . $this->table_name . " WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $this->email);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function taoMoi() {
         // Kiểm tra tên đăng nhập đã tồn tại
         if ($this->kiemTraTonTai()) {
             return false; // Tên đăng nhập đã tồn tại
+        }
+
+        // Kiểm tra email đã tồn tại
+        if ($this->kiemTraEmailTonTai()) {
+            return false; // Email đã tồn tại
         }
 
         $query = "INSERT INTO " . $this->table_name . " 

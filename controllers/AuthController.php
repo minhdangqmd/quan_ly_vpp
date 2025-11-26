@@ -66,6 +66,10 @@ class AuthController {
                 return "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác!";
             }
             
+            if ($nguoiDung->kiemTraEmailTonTai()) {
+                return "Email đã được sử dụng, vui lòng chọn email khác!";
+            }
+            
             if ($nguoiDung->taoMoi()) {
                 // Create customer
                 $khachHang = new KhachHang($this->conn);
@@ -75,8 +79,14 @@ class AuthController {
                 $khachHang->dia_chi = $dia_chi;
                 
                 if ($khachHang->taoMoi()) {
+                    // Tự động đăng nhập sau khi đăng ký thành công
+                    $_SESSION['user_id'] = $nguoiDung->id;
+                    $_SESSION['username'] = $nguoiDung->ten_dang_nhap;
+                    $_SESSION['email'] = $nguoiDung->email;
+                    $_SESSION['user_role'] = 'KhachHang';
+                    
                     $baseUrl = getBaseUrl();
-                    header("Location: " . $baseUrl . "/login.php?success=1");
+                    header("Location: " . $baseUrl . "/index.php");
                     exit();
                 }
                 return "Không thể tạo thông tin khách hàng!";
