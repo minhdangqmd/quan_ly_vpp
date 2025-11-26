@@ -87,6 +87,12 @@ $baseUrl = getBaseUrl();
                         <div style="color: green; font-size: 12px; margin: 10px 0;">Đăng ký thành công! Vui lòng đăng nhập.</div>
                     <?php endif; ?>
                     
+                    <?php if (isset($_GET['reset_success'])): ?>
+                        <div style="color: green; font-size: 12px; margin: 10px 0; background: #e6ffe6; padding: 10px; border-radius: 5px;">
+                            Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.
+                        </div>
+                    <?php endif; ?>
+                    
                     <input type="text" placeholder="Tên đăng nhập" name="ten_dang_nhap" required>
                     <input type="password" placeholder="Mật khẩu" name="mat_khau" required>
                     <a href="<?php echo $baseUrl; ?>/forgot-password.php" style="font-size: 12px; margin: 10px 0;">Quên mật khẩu?</a>

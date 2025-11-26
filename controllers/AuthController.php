@@ -96,6 +96,68 @@ class AuthController {
         }
         return null;
     }
+
+    public function forgotPassword() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $email = $_POST['email'] ?? '';
+            
+            if (empty($email)) {
+                return "Vui lòng nhập email!";
+            }
+            
+            $nguoiDung = new NguoiDung($this->conn);
+            $nguoiDung->email = $email;
+            
+            if ($nguoiDung->docTheoEmail()) {
+                $token = $nguoiDung->taoTokenResetPassword();
+                
+                if ($token) {
+                    // Trong môi trường thực tế, gửi email ở đây
+                    // Hiện tại sẽ trả về token để hiển thị
+                    return ['success' => true, 'token' => $token, 'email' => $email];
+                } else {
+                    return "Không thể tạo token reset password!";
+                }
+            } else {
+                // Không tiết lộ email có tồn tại hay không (bảo mật)
+                return ['success' => true, 'token' => null, 'email' => $email];
+            }
+        }
+        return null;
+    }
+
+    public function resetPassword() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $token = $_POST['token'] ?? '';
+            $mat_khau_moi = $_POST['mat_khau_moi'] ?? '';
+            $xac_nhan_mat_khau = $_POST['xac_nhan_mat_khau'] ?? '';
+            
+            if (empty($token) || empty($mat_khau_moi) || empty($xac_nhan_mat_khau)) {
+                return "Vui lòng điền đầy đủ thông tin!";
+            }
+            
+            if ($mat_khau_moi !== $xac_nhan_mat_khau) {
+                return "Mật khẩu xác nhận không khớp!";
+            }
+            
+            if (strlen($mat_khau_moi) < 6) {
+                return "Mật khẩu phải có ít nhất 6 ký tự!";
+            }
+            
+            $nguoiDung = new NguoiDung($this->conn);
+            
+            if ($nguoiDung->kiemTraToken($token)) {
+                if ($nguoiDung->capNhatMatKhau($mat_khau_moi)) {
+                    return ['success' => true];
+                } else {
+                    return "Không thể cập nhật mật khẩu!";
+                }
+            } else {
+                return "Token không hợp lệ hoặc đã hết hạn!";
+            }
+        }
+        return null;
+    }
 }
 ?>
 

@@ -15,6 +15,8 @@ class NguoiDung {
     public $id_vai_tro;
     public $trang_thai;
     public $ngay_tao;
+    public $reset_token;
+    public $reset_token_expiry;
     
     public $quyen; // Quyen object
 
@@ -148,6 +150,92 @@ class NguoiDung {
         
         if($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
+            return true;
+        }
+        return false;
+    }
+
+    public function docTheoEmail() {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email AND trang_thai = 1 LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $this->email);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($row) {
+            $this->id = $row['id'];
+            $this->ten_dang_nhap = $row['ten_dang_nhap'];
+            $this->email = $row['email'];
+            $this->id_vai_tro = $row['id_vai_tro'];
+            $this->trang_thai = $row['trang_thai'];
+            $this->ngay_tao = $row['ngay_tao'];
+            $this->reset_token = $row['reset_token'] ?? null;
+            $this->reset_token_expiry = $row['reset_token_expiry'] ?? null;
+            
+            return true;
+        }
+        return false;
+    }
+
+    public function taoTokenResetPassword() {
+        // Tạo token ngẫu nhiên
+        $token = bin2hex(random_bytes(32));
+        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token hết hạn sau 1 giờ
+        
+        $query = "UPDATE " . $this->table_name . " 
+                  SET reset_token = :token, reset_token_expiry = :expiry 
+                  WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":token", $token);
+        $stmt->bindParam(":expiry", $expiry);
+        $stmt->bindParam(":id", $this->id);
+        
+        if($stmt->execute()) {
+            $this->reset_token = $token;
+            $this->reset_token_expiry = $expiry;
+            return $token;
+        }
+        return false;
+    }
+
+    public function kiemTraToken($token) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                  WHERE reset_token = :token 
+                  AND reset_token_expiry > NOW() 
+                  AND trang_thai = 1 
+                  LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":token", $token);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($row) {
+            $this->id = $row['id'];
+            $this->ten_dang_nhap = $row['ten_dang_nhap'];
+            $this->email = $row['email'];
+            $this->id_vai_tro = $row['id_vai_tro'];
+            $this->trang_thai = $row['trang_thai'];
+            $this->reset_token = $row['reset_token'];
+            $this->reset_token_expiry = $row['reset_token_expiry'];
+            
+            return true;
+        }
+        return false;
+    }
+
+    public function capNhatMatKhau($mat_khau_moi) {
+        $query = "UPDATE " . $this->table_name . " 
+                  SET mat_khau = :mat_khau, 
+                      reset_token = NULL, 
+                      reset_token_expiry = NULL 
+                  WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        
+        // $hashed_password = password_hash($mat_khau_moi, PASSWORD_DEFAULT);
+        $stmt->bindParam(":mat_khau", $mat_khau_moi);
+        $stmt->bindParam(":id", $this->id);
+        
+        if($stmt->execute()) {
             return true;
         }
         return false;
