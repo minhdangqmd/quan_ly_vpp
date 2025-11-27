@@ -15,7 +15,7 @@ try {
     
     if ($check->rowCount() > 0) {
         echo "✓ Các cột cho chức năng quên mật khẩu đã tồn tại trong database.<br>";
-        echo "<a href='login.php'>Quay lại trang đăng nhập</a>";
+        echo "<a href='dangNhap.php'>Quay lại trang đăng nhập</a>";
         exit;
     }
     
@@ -32,7 +32,7 @@ try {
     echo "<li>Cột <strong>reset_token</strong> - Lưu token reset password</li>";
     echo "<li>Cột <strong>reset_token_expiry</strong> - Lưu thời gian hết hạn của token</li>";
     echo "</ul>";
-    echo "<p><a href='login.php'>Quay lại trang đăng nhập</a></p>";
+    echo "<p><a href='dangNhap.php'>Quay lại trang đăng nhập</a></p>";
     echo "<p style='color: #999; font-size: 12px;'>Bạn có thể xóa file install_reset_password.php này sau khi cài đặt.</p>";
     
 } catch(PDOException $e) {

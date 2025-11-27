@@ -11,7 +11,7 @@ class AuthController {
         $this->conn = $database->getConnection();
     }
 
-    public function login() {
+    public function dangNhap() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ten_dang_nhap = $_POST['ten_dang_nhap'] ?? '';
             $mat_khau = $_POST['mat_khau'] ?? '';
@@ -36,15 +36,15 @@ class AuthController {
         return null;
     }
 
-    public function logout() {
+    public function dangXuat() {
         $nguoiDung = new NguoiDung($this->conn);
         $nguoiDung->DangXuat();
         $baseUrl = getBaseUrl();
-        header("Location: " . $baseUrl . "/login.php");
+        header("Location: " . $baseUrl . "/dangNhap.php");
         exit();
     }
 
-    public function register() {
+    public function dangKy() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             require_once __DIR__ . '/../models/KhachHang.php';
             
@@ -97,7 +97,7 @@ class AuthController {
         return null;
     }
 
-    public function forgotPassword() {
+    public function quenMatKhau() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = $_POST['email'] ?? '';
             
@@ -126,7 +126,7 @@ class AuthController {
         return null;
     }
 
-    public function resetPassword() {
+    public function resetMatKhau() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $token = $_POST['token'] ?? '';
             $mat_khau_moi = $_POST['mat_khau_moi'] ?? '';

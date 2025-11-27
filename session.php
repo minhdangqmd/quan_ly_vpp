@@ -27,7 +27,7 @@ function isLoggedIn() {
 function requireLogin() {
     if (!isLoggedIn()) {
         $baseUrl = getBaseUrl();
-        header("Location: " . ($baseUrl === '' ? '/login.php' : $baseUrl . "/login.php"));
+        header("Location: " . ($baseUrl === '' ? '/dangNhap.php' : $baseUrl . "/dangNhap.php"));
         exit();
     }
 }
