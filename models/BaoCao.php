@@ -9,15 +9,16 @@ class BaoCao {
     }
 
     public function TaoBaoCaoDoanhThu($tuNgay, $denNgay) {
-        $query = "SELECT 
-                    DATE(ngay_dat) as ngay,
-                    COUNT(*) as so_don,
-                    SUM(tong_tien) as tong_doanh_thu
-                  FROM donhang 
-                  WHERE ngay_dat BETWEEN :tu_ngay AND :den_ngay 
-                    AND trang_thai_thanh_toan = 'Đã thanh toán'
-                  GROUP BY DATE(ngay_dat)
-                  ORDER BY ngay";
+    $query = "SELECT 
+                DATE(ngay_dat) as ngay,
+                COUNT(*) as so_don,
+                SUM(tong_tien) as tong_doanh_thu
+              FROM donhang 
+              WHERE ngay_dat BETWEEN :tu_ngay AND :den_ngay 
+                AND trang_thai_thanh_toan = 'Đã thanh toán'
+              GROUP BY DATE(ngay_dat)
+              ORDER BY ngay";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":tu_ngay", $tuNgay);
         $stmt->bindParam(":den_ngay", $denNgay);
@@ -48,7 +49,7 @@ class BaoCao {
                     dh.tong_tien,
                     dh.trang_thai,
                     kh.ho_ten,
-                    kh.so_dien_thoai
+                    kh.sdt
                   FROM donhang dh
                   LEFT JOIN khachhang kh ON dh.id_khach_hang = kh.id
                   WHERE dh.trang_thai = :trang_thai

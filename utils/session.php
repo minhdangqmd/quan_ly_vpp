@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function getBaseUrl() {
     // Get the directory of the current script from SCRIPT_NAME
-    // Example: /VanPhongPham/login.php -> /VanPhongPham
+    // Example: /VanPhongPham/dangNhap.php -> /VanPhongPham
     // Example: /VanPhongPham/admin/donhang.php -> /VanPhongPham
     $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
     
@@ -30,7 +30,7 @@ function isLoggedIn() {
 function requireLogin() {
     if (!isLoggedIn()) {
         $baseUrl = getBaseUrl();
-        header("Location: " . $baseUrl . "/login.php");
+        header("Location: " . $baseUrl . "/dangNhap.php");
         exit();
     }
 }

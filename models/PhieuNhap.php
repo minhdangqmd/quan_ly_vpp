@@ -23,8 +23,8 @@ class PhieuNhap extends PhieuKho {
 
     public function TaoPhieu() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (id, id_nha_cung_cap, id_nhan_vien, id_kho, ngay_nhap, tong_tien, ghi_chu, id_nguoi_tao) 
-                  VALUES (:id, :id_nha_cung_cap, :id_nhan_vien, :id_kho, NOW(), :tong_tien, :ghi_chu, :id_nguoi_tao)";
+                  (id, id_nha_cung_cap, id_nhan_vien, id_kho, ngay_nhap, tong_tien, ghi_chu) 
+                  VALUES (:id, :id_nha_cung_cap, :id_nhan_vien, :id_kho, NOW(), :tong_tien, :ghi_chu)";
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindParam(":id", $this->id);
@@ -33,12 +33,33 @@ class PhieuNhap extends PhieuKho {
         $stmt->bindParam(":id_kho", $this->id_kho);
         $stmt->bindParam(":tong_tien", $this->tong_tien);
         $stmt->bindParam(":ghi_chu", $this->ghi_chu);
-        $stmt->bindParam(":id_nguoi_tao", $this->id_nguoi_tao);
         
         if($stmt->execute()) {
             return true;
         }
         return false;
+    }
+
+    public function docTatCa() {
+        $query = "SELECT pn.*, ncc.ten_nha_cung_cap, nv.ho_ten as ten_nhan_vien 
+                  FROM " . $this->table_name . " pn
+                  LEFT JOIN nhacungcap ncc ON pn.id_nha_cung_cap = ncc.id
+                  LEFT JOIN nhanvien nv ON pn.id_nhan_vien = nv.id
+                  ORDER BY pn.ngay_nhap DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+    
+    public function docChiTiet($id) {
+        $query = "SELECT ctpn.*, sp.ten_san_pham, sp.hinh_anh 
+                  FROM " . $this->table_name_detail . " ctpn
+                  LEFT JOIN sanpham sp ON ctpn.id_san_pham = sp.id
+                  WHERE ctpn.id_phieu_nhap = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        return $stmt;
     }
 
     public function XacNhapNhapKho() {

@@ -49,7 +49,11 @@ class DanhMucSanPham {
     }
 
     public function docTatCa() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY ten_danh_muc";
+        $query = "SELECT dm.*, COUNT(sp.id) as so_luong_san_pham 
+                  FROM " . $this->table_name . " dm
+                  LEFT JOIN sanpham sp ON dm.id = sp.id_danh_muc
+                  GROUP BY dm.id
+                  ORDER BY dm.ten_danh_muc";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;

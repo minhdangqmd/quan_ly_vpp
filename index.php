@@ -45,16 +45,6 @@ include __DIR__ . '/views/layout/header.php';
                     </p>
                     <div class="cta-group">
                         <a href="#product" class="btn hero-cta">Xem Sản Phẩm</a>
-                        <button class="watch-video">
-                            <div class="icon">
-                                <img
-                                    src="<?php echo $baseUrl; ?>/assets/icons/play.svg"
-                                    alt=""
-                                    onerror="this.style.display='none'"
-                                />
-                            </div>
-                            <span>Video Giới Thiệu</span>
-                        </button>
                     </div>
                     <p class="desc">Tương tác gần đây</p>
                     <p class="desc stats">
@@ -109,8 +99,23 @@ include __DIR__ . '/views/layout/header.php';
                                 <p class="p-list">
                                     Tồn kho: <?php echo $product['so_luong_ton']; ?>
                                 </p>
-                                <div class="foot">
-                                    <span class="price"><?php echo number_format($product['gia_ban'], 0, ',', '.'); ?> đ</span>
+                                <div class="foot" style="align-items: flex-end;">
+                                    <?php if (isset($product['phan_tram_giam']) && $product['phan_tram_giam'] > 0): 
+                                        $giaMoi = $product['gia_ban'] * (1 - $product['phan_tram_giam'] / 100);
+                                    ?>
+                                        <div style="display:flex; flex-direction:column; align-items: flex-start;">
+                                            <span class="price" style="text-decoration: line-through; color: #999; font-size: 1.4rem; font-weight: 400;">
+                                                <?php echo number_format($product['gia_ban'], 0, ',', '.'); ?> đ
+                                            </span>
+                                            <span class="price" style="color: #d84315;">
+                                                <?php echo number_format($giaMoi, 0, ',', '.'); ?> đ
+                                                <span style="font-size:1.2rem; background:#ffebee; color:#c62828; padding:2px 6px; border-radius:4px; margin-left: 5px;">-<?php echo $product['phan_tram_giam']; ?>%</span>
+                                            </span>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="price"><?php echo number_format($product['gia_ban'], 0, ',', '.'); ?> đ</span>
+                                    <?php endif; ?>
+
                                     <a href="<?php echo $baseUrl; ?>/sanpham.php?id=<?php echo $product['id']; ?>" class="btn book-btn">
                                         Xem chi tiết
                                     </a>
