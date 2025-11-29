@@ -429,6 +429,52 @@ include __DIR__ . '/views/layout/header.php';
         }
     </script>
 <?php else: ?>
+    <style>
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 30px;
+        }
+
+        .course-item {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .course-item .thumb {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .course-item .info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-item .foot {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 1024px) {
+            .course-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .course-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
     <!-- Product List with Sidebar -->
     <div class="main-content">
         <div class="product-list-container">

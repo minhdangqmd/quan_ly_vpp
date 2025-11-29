@@ -63,14 +63,14 @@ class SanPhamController {
             
             // Handle image upload
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
-                $uploadDir = 'uploads/products/';
+                $uploadDir = __DIR__ . '/../uploads/products/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
                 $fileName = time() . '_' . basename($_FILES['hinh_anh']['name']);
                 $targetFile = $uploadDir . $fileName;
                 if (move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $targetFile)) {
-                    $sanPham->hinh_anh = $targetFile;
+                    $sanPham->hinh_anh = 'uploads/products/' . $fileName;
                 }
             }
             
@@ -113,14 +113,14 @@ class SanPhamController {
             
             // Handle image upload
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
-                $uploadDir = 'uploads/products/';
+                $uploadDir = __DIR__ . '/../uploads/products/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
                 $fileName = time() . '_' . basename($_FILES['hinh_anh']['name']);
                 $targetFile = $uploadDir . $fileName;
                 if (move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $targetFile)) {
-                    $sanPham->hinh_anh = $targetFile;
+                    $sanPham->hinh_anh = 'uploads/products/' . $fileName;
                 }
             }
             
