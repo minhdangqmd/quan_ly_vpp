@@ -388,7 +388,7 @@ include __DIR__ . '/views/layout/header.php';
                     <?php else: ?>
                         <div class="login-prompt">
                             <p>Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng</p>
-                            <a href="<?php echo getBaseUrl(); ?>/login.php" class="btn" style="min-width: 200px;">
+                            <a href="<?php echo getBaseUrl(); ?>/dangNhap.php" class="btn" style="min-width: 200px;">
                                 Đăng nhập
                             </a>
                         </div>

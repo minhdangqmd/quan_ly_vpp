@@ -14,17 +14,17 @@ if (isLoggedIn()) {
 $authController = new AuthController();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $error = $authController->register();
+    $error = $authController->dangKy();
     if ($error) {
-        // Redirect về login.php với error message
+        // Redirect về dangNhap.php với error message
         $baseUrl = getBaseUrl();
-        header("Location: " . $baseUrl . "/login.php?register_error=" . urlencode($error));
+        header("Location: " . $baseUrl . "/dangNhap.php?register_error=" . urlencode($error));
         exit();
     }
 } else {
-    // Nếu không phải POST thì redirect về login.php
+    // Nếu không phải POST thì redirect về dangNhap.php
     $baseUrl = getBaseUrl();
-    header("Location: " . $baseUrl . "/login.php#register");
+    header("Location: " . $baseUrl . "/dangNhap.php#register");
     exit();
 }
 
@@ -76,7 +76,7 @@ include __DIR__ . '/views/layout/header.php';
                 </form>
                 <hr>
                 <p class="text-center mb-0">
-                    Đã có tài khoản? <a href="<?php echo getBaseUrl(); ?>/login.php">Đăng nhập ngay</a>
+                    Đã có tài khoản? <a href="<?php echo getBaseUrl(); ?>/dangNhap.php">Đăng nhập ngay</a>
                 </p>
             </div>
         </div>

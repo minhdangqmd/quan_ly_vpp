@@ -14,17 +14,17 @@ if (isLoggedIn()) {
 
 $authController = new AuthController();
 
-// Kiểm tra error từ URL (redirect từ register.php)
+// Kiểm tra error từ URL (redirect từ dangky.php)
 if (isset($_GET['register_error'])) {
     $register_error = $_GET['register_error'];
 }
 
 // Xử lý đăng ký
 if (isset($_POST['register'])) {
-    $register_error = $authController->register();
+    $register_error = $authController->dangKy();
 } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Xử lý đăng nhập
-    $error = $authController->login();
+    $error = $authController->dangNhap();
 }
 
 $baseUrl = getBaseUrl();
@@ -74,7 +74,7 @@ $baseUrl = getBaseUrl();
     <div class="blur-bg-overlay">
         <div class="container" id="container">
             <div class="form-container sign-in">
-                <form method="post" action="<?php echo $baseUrl; ?>/login.php">
+                <form method="post" action="<?php echo $baseUrl; ?>/dangNhap.php">
                     <img src="<?php echo $baseUrl; ?>/assets/img/logo.svg" alt="logo" style="height: 40px;">
                     <h1>Đăng nhập</h1>
                     
@@ -101,7 +101,7 @@ $baseUrl = getBaseUrl();
             </div>
             
             <div class="form-container sign-up">
-                <form action="<?php echo $baseUrl; ?>/login.php" method="post">
+                <form action="<?php echo $baseUrl; ?>/dangNhap.php" method="post">
                     <img src="<?php echo $baseUrl; ?>/assets/img/logo.svg" alt="logo" style="height: 40px;">
                     <h1>Đăng ký</h1>
                     

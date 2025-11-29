@@ -131,7 +131,7 @@ $currentUser = getCurrentUser();
                             <hr />
                             
                             <li class="profile-dropdown-list-item">
-                                <a href="<?php echo $baseUrl; ?>/logout.php">
+                                <a href="<?php echo $baseUrl; ?>/dangXuat.php">
                                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                     Đăng xuất
                                 </a>
@@ -140,7 +140,7 @@ $currentUser = getCurrentUser();
                     </div>
                 <?php else: ?>
                     <div class="action">
-                        <a href="<?php echo $baseUrl; ?>/login.php" class="btn sign-up-btn">Đăng nhập</a>
+                        <a href="<?php echo $baseUrl; ?>/dangNhap.php" class="btn sign-up-btn">Đăng nhập</a>
                     </div>
                 <?php endif; ?>
             </div>

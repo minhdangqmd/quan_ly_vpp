@@ -8,7 +8,7 @@ $result = null;
 $token = $_GET['token'] ?? '';
 
 if (empty($token)) {
-    header("Location: " . getBaseUrl() . "/login.php");
+    header("Location: " . getBaseUrl() . "/dangNhap.php");
     exit();
 }
 
@@ -25,8 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result = $authController->resetPassword();
     
     if (is_array($result) && isset($result['success']) && $result['success']) {
-        // Thành công - redirect về login với thông báo
-        header("Location: " . getBaseUrl() . "/login.php?reset_success=1");
+        // Thành công - redirect về dangNhap với thông báo
+        header("Location: " . getBaseUrl() . "/dangNhap.php?reset_success=1");
         exit();
     } else {
         // Lỗi
@@ -85,7 +85,7 @@ $baseUrl = getBaseUrl();
                     
                     <button type="submit">Đặt lại mật khẩu</button>
                     
-                    <a href="<?php echo $baseUrl; ?>/login.php" style="display: inline-block; margin-top: 20px; color: #512da8; font-size: 14px; text-decoration: none;">
+                    <a href="<?php echo $baseUrl; ?>/dangNhap.php" style="display: inline-block; margin-top: 20px; color: #512da8; font-size: 14px; text-decoration: none;">
                         <i class="fas fa-arrow-left"></i> Quay lại đăng nhập
                     </a>
                 </form>

@@ -162,7 +162,7 @@ include __DIR__ . '/views/layout/header.php';
                 <a href="<?php echo getBaseUrl(); ?>/giohang.php" class="profile-menu-item">
                     <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
                 </a>
-                <a href="<?php echo getBaseUrl(); ?>/logout.php" class="profile-menu-item logout">
+                <a href="<?php echo getBaseUrl(); ?>/dangXuat.php" class="profile-menu-item logout">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
                 </a>
             </div>

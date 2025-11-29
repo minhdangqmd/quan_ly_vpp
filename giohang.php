@@ -123,7 +123,7 @@ include __DIR__ . '/views/layout/header.php';
                     <span>Tổng cộng:</span>
                     <span class="total-price"><?php echo number_format($tongTien, 0, ',', '.'); ?> đ</span>
                 </div>
-                <a href="<?php echo getBaseUrl(); ?>/checkout.php" class="btn checkout-btn">
+                <a href="<?php echo getBaseUrl(); ?>/thanhtoan.php" class="btn checkout-btn">
                     <i class="fa-solid fa-credit-card"></i> Thanh toán
                 </a>
                 <a href="<?php echo getBaseUrl(); ?>/sanpham.php" class="btn continue-btn">
