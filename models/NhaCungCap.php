@@ -8,7 +8,7 @@ class NhaCungCap {
     public $id;
     public $ten_nha_cung_cap;
     public $dia_chi;
-    public $so_dien_thoai;
+    public $sdt;
     public $email;
 
     public function __construct($db) {
@@ -19,14 +19,14 @@ class NhaCungCap {
         $query = "UPDATE " . $this->table_name . " 
                   SET ten_nha_cung_cap = :ten_nha_cung_cap, 
                       dia_chi = :dia_chi, 
-                      so_dien_thoai = :so_dien_thoai, 
+                      sdt = :sdt, 
                       email = :email 
                   WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindParam(":ten_nha_cung_cap", $this->ten_nha_cung_cap);
         $stmt->bindParam(":dia_chi", $this->dia_chi);
-        $stmt->bindParam(":so_dien_thoai", $this->so_dien_thoai);
+        $stmt->bindParam(":sdt", $this->sdt);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":id", $this->id);
         
@@ -46,7 +46,7 @@ class NhaCungCap {
         if($row) {
             $this->ten_nha_cung_cap = $row['ten_nha_cung_cap'];
             $this->dia_chi = $row['dia_chi'];
-            $this->so_dien_thoai = $row['so_dien_thoai'];
+            $this->sdt = $row['sdt'];
             $this->email = $row['email'];
             return true;
         }
@@ -55,14 +55,14 @@ class NhaCungCap {
 
     public function taoMoi() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (id, ten_nha_cung_cap, dia_chi, so_dien_thoai, email) 
-                  VALUES (:id, :ten_nha_cung_cap, :dia_chi, :so_dien_thoai, :email)";
+                  (id, ten_nha_cung_cap, dia_chi, sdt, email) 
+                  VALUES (:id, :ten_nha_cung_cap, :dia_chi, :sdt, :email)";
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":ten_nha_cung_cap", $this->ten_nha_cung_cap);
         $stmt->bindParam(":dia_chi", $this->dia_chi);
-        $stmt->bindParam(":so_dien_thoai", $this->so_dien_thoai);
+        $stmt->bindParam(":sdt", $this->sdt);
         $stmt->bindParam(":email", $this->email);
         
         if($stmt->execute()) {
@@ -76,6 +76,21 @@ class NhaCungCap {
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
+    }
+
+    public function xoa() {
+        $query = "DELETE FROM " . $this->table_name . " WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        
+        $this->id=htmlspecialchars(strip_tags($this->id));
+        
+        $stmt->bindParam(":id", $this->id);
+        
+        if($stmt->execute()) {
+            return true;
+        }
+        
+        return false;
     }
 }
 ?>

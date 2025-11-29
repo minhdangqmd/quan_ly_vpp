@@ -1,3 +1,16 @@
+    <?php
+    if (!isset($baseUrl)) {
+        if (!function_exists('getBaseUrl')) {
+            require_once __DIR__ . '/../../utils/session.php';
+        }
+        $baseUrl = getBaseUrl();
+    }
+    $isAdminPage = strpos($_SERVER['PHP_SELF'], '/admin/') !== false;
+    if ($isAdminPage && isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Admin'):
+    ?>
+            </div>
+        </div>
+    <?php endif; ?>
     </main>
     
     <!-- Footer -->

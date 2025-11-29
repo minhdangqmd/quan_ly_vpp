@@ -4,6 +4,7 @@ require_once __DIR__ . '/controllers/AuthController.php';
 
 $pageTitle = 'Đăng nhập';
 $error = null;
+$register_error = null;
 
 if (isLoggedIn()) {
     $baseUrl = getBaseUrl();
@@ -12,7 +13,19 @@ if (isLoggedIn()) {
 }
 
 $authController = new AuthController();
-$error = $authController->login();
+
+// Kiểm tra error từ URL (redirect từ register.php)
+if (isset($_GET['register_error'])) {
+    $register_error = $_GET['register_error'];
+}
+
+// Xử lý đăng ký
+if (isset($_POST['register'])) {
+    $register_error = $authController->register();
+} else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Xử lý đăng nhập
+    $error = $authController->login();
+}
 
 $baseUrl = getBaseUrl();
 ?>
@@ -44,6 +57,17 @@ $baseUrl = getBaseUrl();
     
     <!-- JS -->
     <script src="<?php echo $baseUrl; ?>/assets/js/login.js" defer></script>
+    <?php if ($register_error || isset($_GET['register_error'])): ?>
+    <script>
+        // Tự động mở panel đăng ký khi có lỗi
+        window.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('container');
+            if (container) {
+                container.classList.add('active');
+            }
+        });
+    </script>
+    <?php endif; ?>
 </head>
 <body>
     <!-- Login -->
@@ -53,13 +77,7 @@ $baseUrl = getBaseUrl();
                 <form method="post" action="<?php echo $baseUrl; ?>/login.php">
                     <img src="<?php echo $baseUrl; ?>/assets/img/logo.svg" alt="logo" style="height: 40px;">
                     <h1>Đăng nhập</h1>
-                    <div class="social-icons">
-                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                    </div>
-                    <span>hoặc sử dụng tên đăng nhập và mật khẩu</span>
+                    
                     
                     <?php if ($error): ?>
                         <div style="color: red; font-size: 12px; margin: 10px 0;"><?php echo htmlspecialchars($error); ?></div>
@@ -67,6 +85,12 @@ $baseUrl = getBaseUrl();
                     
                     <?php if (isset($_GET['success'])): ?>
                         <div style="color: green; font-size: 12px; margin: 10px 0;">Đăng ký thành công! Vui lòng đăng nhập.</div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_GET['reset_success'])): ?>
+                        <div style="color: green; font-size: 12px; margin: 10px 0; background: #e6ffe6; padding: 10px; border-radius: 5px;">
+                            Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.
+                        </div>
                     <?php endif; ?>
                     
                     <input type="text" placeholder="Tên đăng nhập" name="ten_dang_nhap" required>
@@ -77,20 +101,22 @@ $baseUrl = getBaseUrl();
             </div>
             
             <div class="form-container sign-up">
-                <form action="<?php echo $baseUrl; ?>/register.php" method="post">
+                <form action="<?php echo $baseUrl; ?>/login.php" method="post">
                     <img src="<?php echo $baseUrl; ?>/assets/img/logo.svg" alt="logo" style="height: 40px;">
                     <h1>Đăng ký</h1>
-                    <div class="social-icons">
-                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                    </div>
-                    <span>hoặc sử dụng email để đăng ký</span>
+                    
+                    
+                    
+                    <?php if ($register_error): ?>
+                        <div style="color: red; font-size: 12px; margin: 10px 0;"><?php echo htmlspecialchars($register_error); ?></div>
+                    <?php endif; ?>
+                    
                     <input type="email" placeholder="Email" name="email" required>
                     <input type="text" placeholder="Tên đăng nhập" name="ten_dang_nhap" required>
                     <input type="password" placeholder="Mật khẩu" name="mat_khau" required>
                     <input type="text" placeholder="Họ và tên" name="ho_ten" required>
+                    <input type="tel" placeholder="Số điện thoại" name="so_dien_thoai">
+                    <input type="text" placeholder="Địa chỉ" name="dia_chi">
                     <button type="submit" name="register">Đăng ký</button>
                 </form>
             </div>

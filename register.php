@@ -12,8 +12,23 @@ if (isLoggedIn()) {
 }
 
 $authController = new AuthController();
-$error = $authController->register();
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $error = $authController->register();
+    if ($error) {
+        // Redirect về login.php với error message
+        $baseUrl = getBaseUrl();
+        header("Location: " . $baseUrl . "/login.php?register_error=" . urlencode($error));
+        exit();
+    }
+} else {
+    // Nếu không phải POST thì redirect về login.php
+    $baseUrl = getBaseUrl();
+    header("Location: " . $baseUrl . "/login.php#register");
+    exit();
+}
+
+// Code dưới này không chạy nữa vì đã redirect hết
 include __DIR__ . '/views/layout/header.php';
 ?>
 
